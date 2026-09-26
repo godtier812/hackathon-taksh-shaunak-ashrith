@@ -6,6 +6,12 @@
  * the trend chart, metric cards, sparklines, scroll-story waveforms and summary.
  * All comparisons are against Margaret's own June baseline, never population norms.
  */
+import type {
+  ChartPoint,
+  ChartRange,
+  IndicatorKey,
+  MetricSummary,
+} from "@/lib/dashboard/types"
 import { formatDate, formatMonthYear, formatShortDate } from "@/lib/format"
 import { gaussian, mulberry32 } from "@/lib/random"
 import { buildWaveState, type WaveSegment, type WaveState } from "@/lib/waveform"
@@ -19,7 +25,8 @@ const WINDOW_DAYS = 14 // baseline = first two weeks, current = last two weeks
 const SESSION_WEEKDAYS = new Set([2, 4, 6]) // Tue, Thu, Sat (UTC)
 const SKIPPED = new Set([Date.UTC(2026, 6, 4), Date.UTC(2026, 7, 13), Date.UTC(2026, 8, 5)])
 
-export type IndicatorKey = "pauses" | "repetition" | "vocabulary" | "speechRate" | "coherence"
+/** Margaret's five indicators; live mode swaps coherence for filler words. */
+type DemoIndicatorKey = Exclude<IndicatorKey, "fillers">
 
 type IndicatorModel = {
   /** Baseline level in the indicator's own unit. */
@@ -33,7 +40,7 @@ type IndicatorModel = {
   weight: number
 }
 
-const INDICATORS: Record<IndicatorKey, IndicatorModel> = {
+const INDICATORS: Record<DemoIndicatorKey, IndicatorModel> = {
   pauses: { baseline: 9.5, change: 0.18, noise: 0.24, concern: "increase", weight: 0.25 }, // pauses / min
   repetition: { baseline: 2.5, change: 0.12, noise: 0.09, concern: "increase", weight: 0.2 }, // repeated phrases / conversation
   vocabulary: { baseline: 0.62, change: -0.06, noise: 0.006, concern: "decrease", weight: 0.25 }, // moving type–token ratio
@@ -41,14 +48,14 @@ const INDICATORS: Record<IndicatorKey, IndicatorModel> = {
   coherence: { baseline: 0.84, change: -0.04, noise: 0.007, concern: "decrease", weight: 0.2 }, // adjacent-sentence similarity
 }
 
-const INDICATOR_KEYS = Object.keys(INDICATORS) as IndicatorKey[]
+const INDICATOR_KEYS = Object.keys(INDICATORS) as DemoIndicatorKey[]
 
 export type Session = {
   t: number
   day: number
   /** Composite demo index, 100 = mean of the first two weeks. */
   index: number
-  values: Record<IndicatorKey, number>
+  values: Record<DemoIndicatorKey, number>
 }
 
 const mean = (values: number[]) => values.reduce((sum, v) => sum + v, 0) / values.length
@@ -71,7 +78,7 @@ const rampLow = windowMean(rawRamp, inBaseline)
 const rampHigh = windowMean(rawRamp, inCurrent)
 const ramp = rawRamp.map((r) => (r - rampLow) / (rampHigh - rampLow))
 
-function indicatorSeries(key: IndicatorKey, seed: number) {
+function indicatorSeries(key: DemoIndicatorKey, seed: number) {
   const model = INDICATORS[key]
   const rand = mulberry32(seed)
   const noise = sessionDays.map(() => gaussian(rand) * model.noise)
@@ -86,7 +93,7 @@ function indicatorSeries(key: IndicatorKey, seed: number) {
 
 const series = Object.fromEntries(
   INDICATOR_KEYS.map((key, i) => [key, indicatorSeries(key, 20260602 + i * 97)])
-) as Record<IndicatorKey, number[]>
+) as Record<DemoIndicatorKey, number[]>
 
 // Composite: 100 minus the weighted "concerning" deviation from Margaret's own baseline.
 const COMPOSITE_GAIN = 97
@@ -107,7 +114,7 @@ export const sessions: Session[] = sessionDates.map((t, i) => ({
   day: sessionDays[i],
   index: Math.round((rawComposite[i] + compositeOffset) * 10) / 10,
   values: Object.fromEntries(INDICATOR_KEYS.map((key) => [key, series[key][i]])) as Record<
-    IndicatorKey,
+    DemoIndicatorKey,
     number
   >,
 }))
@@ -128,9 +135,6 @@ export const patient = {
 
 export const BASELINE_INDEX = 100
 export const BASELINE_BAND: [number, number] = [97, 103]
-
-export type ChartRange = "30d" | "90d" | "all"
-export type ChartPoint = { t: number; index: number }
 
 const RANGE_DAYS: Record<ChartRange, number> = { "30d": 30, "90d": 90, all: Infinity }
 
@@ -172,33 +176,13 @@ export const chartSummary = `Margaret's composite communication index stayed clo
 
 /* ---------------------------------------------------------------- metrics */
 
-export type MetricTone = "signal" | "neutral"
-export type MetricDirection = "up" | "down" | "flat"
-
-export type MetricSummary = {
-  key: IndicatorKey
-  label: string
-  /** Percent change vs baseline, when the card shows a number. */
-  percent: number | null
-  /** Text value, when the card shows a word instead of a number. */
-  valueText: string | null
-  descriptor: string
-  direction: MetricDirection
-  tone: MetricTone
-  /** Small amber dot beside a neutral descriptor. */
-  signalDot: boolean
-  /** ~13 weekly means covering the last 90 days. */
-  sparkline: number[]
-  baseline: number
-}
-
-function percentChange(key: IndicatorKey) {
+function percentChange(key: DemoIndicatorKey) {
   const values = series[key]
   return (windowMean(values, inCurrent) / windowMean(values, inBaseline) - 1) * 100
 }
 
 const WEEKS = 13
-function weeklyMeans(key: IndicatorKey) {
+function weeklyMeans(key: DemoIndicatorKey) {
   const out: number[] = []
   for (let w = WEEKS - 1; w >= 0; w--) {
     const binEnd = END - w * 7 * DAY_MS
@@ -209,10 +193,10 @@ function weeklyMeans(key: IndicatorKey) {
   return out
 }
 
-const pct = (key: IndicatorKey) => Math.round(percentChange(key))
+const pct = (key: DemoIndicatorKey) => Math.round(percentChange(key))
 
 function metric(
-  key: IndicatorKey,
+  key: DemoIndicatorKey,
   label: string,
   display: Pick<MetricSummary, "descriptor" | "direction" | "tone" | "signalDot"> & {
     showPercent: boolean

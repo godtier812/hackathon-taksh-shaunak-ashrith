@@ -16,18 +16,11 @@ import {
 
 import { ChartContainer, ChartTooltip, type ChartConfig } from "@/components/ui/chart"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  BASELINE_BAND,
-  BASELINE_INDEX,
-  chartRanges,
-  chartSummary,
-  latestSession,
-  patient,
-  type ChartPoint,
-  type ChartRange,
-} from "@/lib/demo/margaret"
+import type { ChartPoint, ChartRange, DashboardData } from "@/lib/dashboard/types"
 import { formatDate, formatMonth, formatShortDate, formatSigned } from "@/lib/format"
 import { usePrefersReducedMotion } from "@/lib/hooks"
+
+type ChartData = DashboardData["chart"]
 
 const chartConfig = {
   index: { label: "Composite index", color: "var(--brand)" },
@@ -42,7 +35,12 @@ const RANGE_OPTIONS: { value: ChartRange; label: string }[] = [
 const isRange = (value: unknown): value is ChartRange =>
   RANGE_OPTIONS.some((option) => option.value === value)
 
-function TrendTooltip({ active, payload }: Partial<TooltipContentProps<number, string>>) {
+function TrendTooltip({
+  active,
+  payload,
+  baseline,
+  digits,
+}: Partial<TooltipContentProps<number, string>> & { baseline: number; digits: number }) {
   const point = payload?.[0]?.payload as ChartPoint | undefined
   if (!active || !point) return null
   return (
@@ -50,17 +48,17 @@ function TrendTooltip({ active, payload }: Partial<TooltipContentProps<number, s
       <p className="font-mono type-caption text-ink-tertiary">{formatDate(point.t)}</p>
       <p className="mt-1.5 flex items-baseline gap-2">
         <span className="text-[18px] font-semibold tracking-[-0.02em] text-ink tabular-nums">
-          {point.index.toFixed(1)}
+          {point.index.toFixed(digits)}
         </span>
         <span className="type-caption text-ink-secondary tabular-nums">
-          {formatSigned(point.index - BASELINE_INDEX, 1)} vs baseline
+          {formatSigned(point.index - baseline, digits)} vs baseline
         </span>
       </p>
     </div>
   )
 }
 
-function LatestPoint({ cx, cy }: { cx?: number; cy?: number }) {
+function LatestPoint({ cx, cy, latest }: { cx?: number; cy?: number; latest: ChartPoint }) {
   if (cx == null || cy == null) return <g />
   return (
     <g className="animate-in fade-in-0 duration-300">
@@ -74,26 +72,28 @@ function LatestPoint({ cx, cy }: { cx?: number; cy?: number }) {
       />
       <circle cx={cx} cy={cy} r={4.5} fill="var(--brand)" stroke="#ffffff" strokeWidth={2} />
       <text x={cx + 12} y={cy - 3} className="fill-ink-tertiary font-mono text-[11px]">
-        {formatShortDate(latestSession.t)}
+        {formatShortDate(latest.t)}
       </text>
       <text x={cx + 12} y={cy + 13} className="fill-ink text-[13px] font-semibold tabular-nums">
-        {Math.round(latestSession.index)}
+        {Math.round(latest.index)}
       </text>
     </g>
   )
 }
 
 /**
- * "Communication over time": Margaret's composite demo index relative to her own
- * June baseline. The line draws once when the chart first enters the viewport.
+ * "Communication over time": the patient's score relative to their own baseline
+ * (Margaret's composite demo index, or the live MindTrace check-in score).
+ * The line draws once when the chart first enters the viewport.
  */
-export function TrendChart({ interactive = true }: { interactive?: boolean }) {
+export function TrendChart({ chart, interactive = true }: { chart: ChartData; interactive?: boolean }) {
   const [range, setRange] = useState<ChartRange>("90d")
   const [drawn, setDrawn] = useState(false)
   const plotRef = useRef<HTMLDivElement>(null)
   const inView = useInView(plotRef, { once: true, amount: 0.4 })
   const reduced = usePrefersReducedMotion()
-  const { points, ticks, tickFormat } = chartRanges[range]
+  const { points, ticks, tickFormat } = chart.ranges[range]
+  const { latest } = chart
 
   return (
     <section
@@ -105,9 +105,7 @@ export function TrendChart({ interactive = true }: { interactive?: boolean }) {
           <h2 id={interactive ? "trend-title" : undefined} className="type-section text-ink">
             Communication over time
           </h2>
-          <p className="mt-1.5 type-body text-ink-secondary">
-            Composite of five indicators, relative to Margaret&rsquo;s June baseline.
-          </p>
+          <p className="mt-1.5 type-body text-ink-secondary">{chart.subtitle}</p>
         </div>
         <Tabs
           value={range}
@@ -133,7 +131,7 @@ export function TrendChart({ interactive = true }: { interactive?: boolean }) {
         </Tabs>
       </div>
 
-      <p className="sr-only">{chartSummary}</p>
+      <p className="sr-only">{chart.summary}</p>
 
       <div ref={plotRef} aria-hidden="true" className="mt-5 @3xl:mt-6">
         <ChartContainer
@@ -151,10 +149,15 @@ export function TrendChart({ interactive = true }: { interactive?: boolean }) {
                 <stop offset="100%" stopColor="var(--brand)" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} horizontalValues={[90, 95]} stroke="var(--line)" strokeOpacity={0.9} />
+            <CartesianGrid
+              vertical={false}
+              horizontalValues={chart.yTicks.filter((tick) => tick !== chart.baseline)}
+              stroke="var(--line)"
+              strokeOpacity={0.9}
+            />
             <ReferenceArea
-              y1={BASELINE_BAND[0]}
-              y2={BASELINE_BAND[1]}
+              y1={chart.baselineBand[0]}
+              y2={chart.baselineBand[1]}
               fill="var(--surface-muted)"
               fillOpacity={1}
               stroke="none"
@@ -166,7 +169,7 @@ export function TrendChart({ interactive = true }: { interactive?: boolean }) {
                 className: "fill-ink-tertiary font-mono text-[11px]",
               }}
             />
-            <ReferenceLine y={BASELINE_INDEX} stroke="var(--line-strong)" strokeDasharray="3 4" />
+            <ReferenceLine y={chart.baseline} stroke="var(--line-strong)" strokeDasharray="3 4" />
             <XAxis
               dataKey="t"
               type="number"
@@ -180,8 +183,8 @@ export function TrendChart({ interactive = true }: { interactive?: boolean }) {
               interval={0}
             />
             <YAxis
-              domain={[86, 104]}
-              ticks={[90, 95, 100]}
+              domain={chart.yDomain}
+              ticks={chart.yTicks}
               axisLine={false}
               tickLine={false}
               tickMargin={6}
@@ -190,7 +193,7 @@ export function TrendChart({ interactive = true }: { interactive?: boolean }) {
             {interactive ? (
               <ChartTooltip
                 cursor={{ stroke: "var(--line-strong)", strokeWidth: 1 }}
-                content={<TrendTooltip />}
+                content={<TrendTooltip baseline={chart.baseline} digits={chart.valueDigits} />}
                 animationDuration={120}
                 wrapperStyle={{ outline: "none" }}
               />
@@ -213,11 +216,11 @@ export function TrendChart({ interactive = true }: { interactive?: boolean }) {
             ) : null}
             {inView && (drawn || reduced) ? (
               <ReferenceDot
-                x={latestSession.t}
-                y={latestSession.index}
+                x={latest.t}
+                y={latest.index}
                 r={0}
                 ifOverflow="visible"
-                shape={(props) => <LatestPoint cx={props.cx} cy={props.cy} />}
+                shape={(props) => <LatestPoint cx={props.cx} cy={props.cy} latest={latest} />}
               />
             ) : null}
           </AreaChart>
@@ -225,10 +228,8 @@ export function TrendChart({ interactive = true }: { interactive?: boolean }) {
       </div>
 
       <div className="mt-4 flex flex-col gap-1 font-mono type-caption text-ink-tertiary @xl:flex-row @xl:justify-between">
-        <span>
-          {patient.sessionCount} conversations · {patient.rangeLabel}
-        </span>
-        <span>Demo index · not a clinical measure</span>
+        <span>{chart.footerLeft}</span>
+        <span>{chart.footerRight}</span>
       </div>
     </section>
   )

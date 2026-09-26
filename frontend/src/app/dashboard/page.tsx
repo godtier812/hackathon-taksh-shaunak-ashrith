@@ -1,21 +1,13 @@
 import type { Metadata } from "next"
 
-import { DashboardView } from "@/components/dashboard/dashboard-view"
-import { TopBar } from "@/components/dashboard/top-bar"
+import { LiveDashboard } from "@/components/dashboard/live-dashboard"
 
 export const metadata: Metadata = {
-  title: "Margaret Reynolds · MindTrace",
+  title: "Dashboard · MindTrace",
   description:
-    "A demonstration communication record for a fictional person, compared only with her own baseline. All values are synthetic.",
+    "A communication record compared only with the person's own baseline. Shows live check-ins from the MindTrace desktop app, or a fictional demo record when the app isn't running.",
 }
 
 export default function DashboardPage() {
-  return (
-    <>
-      <TopBar />
-      <main className="shell pt-8 pb-24 md:pt-10 md:pb-32">
-        <DashboardView variant="page" />
-      </main>
-    </>
-  )
+  return <LiveDashboard />
 }

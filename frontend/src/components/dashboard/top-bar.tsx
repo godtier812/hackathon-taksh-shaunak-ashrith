@@ -1,9 +1,10 @@
 import Link from "next/link"
 
 import { Wordmark } from "@/components/brand/wordmark"
-import { DemoDataBadge } from "@/components/dashboard/demo-data-badge"
+import { DataSourceBadge } from "@/components/dashboard/data-source-badge"
+import type { DashboardData } from "@/lib/dashboard/types"
 
-export function TopBar() {
+export function TopBar({ source }: { source?: DashboardData["source"] }) {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-canvas">
       <div className="shell flex h-16 items-center justify-between gap-4">
@@ -14,7 +15,7 @@ export function TopBar() {
         >
           <Wordmark />
         </Link>
-        <DemoDataBadge />
+        {source ? <DataSourceBadge source={source} /> : null}
       </div>
     </header>
   )

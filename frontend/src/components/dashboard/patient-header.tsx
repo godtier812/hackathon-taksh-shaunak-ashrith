@@ -1,10 +1,18 @@
-import { AudioLines } from "lucide-react"
+import type { ReactNode } from "react"
 
-import { Phase2Button } from "@/components/shared/phase2-button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { patient } from "@/lib/demo/margaret"
+import type { DashboardData } from "@/lib/dashboard/types"
 
-export function PatientHeader({ asHeading }: { asHeading: boolean }) {
+export function PatientHeader({
+  patient,
+  asHeading,
+  action,
+}: {
+  patient: DashboardData["patient"]
+  asHeading: boolean
+  /** The "Analyze new conversation" control, supplied by the page or the preview. */
+  action: ReactNode
+}) {
   const Name = asHeading ? "h1" : "p"
 
   return (
@@ -18,9 +26,7 @@ export function PatientHeader({ asHeading }: { asHeading: boolean }) {
         <div className="min-w-0">
           <Name className="type-page text-ink">{patient.name}</Name>
           <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
-            <p className="type-body text-ink-secondary">
-              Age {patient.age} · Monitoring since {patient.monitoringSince}
-            </p>
+            <p className="type-body text-ink-secondary">{patient.details}</p>
             <p className="inline-flex items-center gap-2 type-label text-ink">
               <span aria-hidden="true" className="relative inline-flex size-2">
                 <span className="absolute inset-0 rounded-full bg-accent motion-safe:animate-[status-halo_2.8s_var(--ease-out-expo)_infinite]" />
@@ -32,10 +38,7 @@ export function PatientHeader({ asHeading }: { asHeading: boolean }) {
         </div>
       </div>
 
-      <Phase2Button className="w-full shrink-0 @2xl:w-auto">
-        <AudioLines data-icon="inline-start" strokeWidth={1.75} aria-hidden="true" />
-        Analyze new conversation
-      </Phase2Button>
+      {action}
     </header>
   )
 }

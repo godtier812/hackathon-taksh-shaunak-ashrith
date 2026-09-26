@@ -1,6 +1,7 @@
 import {
   BookOpenText,
   Gauge,
+  MessageCircleMore,
   Minus,
   Pause,
   Repeat2,
@@ -12,7 +13,7 @@ import {
 
 import { MetricValue } from "@/components/dashboard/metric-value"
 import { Sparkline } from "@/components/dashboard/sparkline"
-import type { IndicatorKey, MetricDirection, MetricSummary } from "@/lib/demo/margaret"
+import type { IndicatorKey, MetricDirection, MetricSummary } from "@/lib/dashboard/types"
 import { cn } from "@/lib/utils"
 
 const ICONS: Record<IndicatorKey, LucideIcon> = {
@@ -21,6 +22,7 @@ const ICONS: Record<IndicatorKey, LucideIcon> = {
   vocabulary: BookOpenText,
   speechRate: Gauge,
   coherence: Waypoints,
+  fillers: MessageCircleMore,
 }
 
 const GLYPHS: Record<MetricDirection, LucideIcon> = {
