@@ -15,8 +15,16 @@ Website (browser) ──fetch──▶ http://127.0.0.1:4317/api ──▶ MindT
 
 The API only listens on `127.0.0.1`, so the website must run on the same computer as the app. A cloud version would swap this for a shared database with the same JSON shapes.
 
+## How the website in `frontend/` uses it
+- `frontend/src/lib/backend/` holds copies of `backend/src/shared/{types,api,apiClient,tasks}.ts`. **When you change a file in `backend/src/shared/`, copy it over too.**
+- `frontend/src/lib/dashboard/live.ts` turns check-ins into the dashboard's data (`DashboardData`). `demo.ts` does the same for Margaret's synthetic record.
+- `frontend/src/components/dashboard/live-dashboard.tsx` polls `/api/sessions` (every 4 s while live, every 12 s while offline) and falls back to the demo when the app is unreachable.
+- `frontend/src/components/dashboard/analyze-panel.tsx` records in the browser and posts to `/api/analyze`.
+- Set `NEXT_PUBLIC_MINDTRACE_API` to point the website at a different API address.
+- The desktop app has no patient profile yet, so the name and age shown in live mode come from `LIVE_PATIENT` in `live.ts`.
+
 ## Typed client
-Copy `backend/src/shared/types.ts`, `api.ts` and `apiClient.ts` into the website, or import them by relative path. They have no dependencies.
+Copy `backend/src/shared/types.ts`, `api.ts` and `apiClient.ts` into a website, or import them by relative path. They have no dependencies.
 
 ```ts
 import { createMindTraceClient } from './mindtrace/apiClient'
