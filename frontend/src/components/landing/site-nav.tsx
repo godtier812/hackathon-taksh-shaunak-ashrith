@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Download } from "lucide-react"
 import { motion, useMotionValueEvent, useScroll } from "motion/react"
 import Link from "next/link"
 import { useState, type MouseEvent } from "react"
@@ -76,6 +76,15 @@ export function SiteNav() {
               View demo
             </Link>
           </div>
+          <PillLink
+            href="https://mindtrace.app/download"
+            size="sm"
+            variant="secondary"
+            className="ml-1 h-11 md:ml-3 md:h-10"
+          >
+            <Download data-icon="inline-start" strokeWidth={1.75} aria-hidden="true" />
+            Download app
+          </PillLink>
           <PillLink href="/dashboard" size="sm" className="ml-1 h-11 md:ml-3 md:h-10">
             View Margaret&rsquo;s journey
             <ArrowRight data-icon="inline-end" strokeWidth={1.75} aria-hidden="true" />

@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Download } from "lucide-react"
 
 import { HandoffFade } from "@/components/landing/handoff"
 import { HeroWaveform } from "@/components/landing/hero-waveform"
@@ -37,6 +37,14 @@ export function Hero() {
             </PillLink>
             <PillLink href="/dashboard#analyze" variant="secondary" className="w-full sm:w-auto">
               Start a session
+            </PillLink>
+            <PillLink
+              href="https://mindtrace.app/download"
+              variant="secondary"
+              className="w-full sm:w-auto"
+            >
+              <Download data-icon="inline-start" strokeWidth={1.75} aria-hidden="true" />
+              Download the app
             </PillLink>
           </div>
         </Reveal>
