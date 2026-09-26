@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   },
   // Allow the Base44 preview origin to access dev assets / HMR.
   allowedDevOrigins: process.env.BASE44_PUBLIC_HOST_SUFFIX
-    ? [`https://3000-${process.env.BASE44_PUBLIC_HOST_SUFFIX}`]
+    ? [`3000-${process.env.BASE44_PUBLIC_HOST_SUFFIX}`]
     : [],
 };
 

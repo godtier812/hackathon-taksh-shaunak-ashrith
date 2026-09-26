@@ -148,7 +148,7 @@ export function startApiServer(deps: ApiDeps, port: number = API_PORT): Server {
   const handler = createApiHandler(deps)
   const server = createServer((req, res) => void handler(req, res))
   server.on('error', (e) => console.error('MindTrace API server error:', e))
-  server.listen(port, '127.0.0.1', () => {
+  server.listen(port, process.env.MINDTRACE_API_HOST ?? '127.0.0.1', () => {
     const address = server.address()
     const actualPort = typeof address === 'object' && address ? address.port : port
     console.log(`MindTrace API listening on http://127.0.0.1:${actualPort}/api`)
