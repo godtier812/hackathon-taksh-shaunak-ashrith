@@ -1,0 +1,27 @@
+# Base44 development environment — runs the Next.js frontend from source
+# with live reload. The Electron desktop app (backend/) is not started; the
+# website falls back to Margaret's demo data when the local API is absent.
+services:
+  web:
+    image: node:22-slim
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - web_node_modules:/app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - BASE44_PUBLIC_HOST_SUFFIX=${BASE44_PUBLIC_HOST_SUFFIX}
+      # Polling-based file watching so live reload fires through the bind mount.
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    command: sh -c "npm install && npm run dev -- -H 0.0.0.0"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
+
+volumes:
+  web_node_modules:
