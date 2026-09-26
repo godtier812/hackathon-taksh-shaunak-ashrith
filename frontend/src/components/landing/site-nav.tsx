@@ -1,7 +1,7 @@
 "use client"
 
 import { ArrowRight } from "lucide-react"
-import { useMotionValueEvent, useScroll } from "motion/react"
+import { motion, useMotionValueEvent, useScroll } from "motion/react"
 import Link from "next/link"
 import { useState, type MouseEvent } from "react"
 
@@ -19,7 +19,7 @@ const linkClass =
   "rounded-full px-3 py-2 text-[14px] font-medium text-ink-secondary transition-colors duration-150 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
 
 export function SiteNav() {
-  const { scrollY } = useScroll()
+  const { scrollY, scrollYProgress } = useScroll()
   const [scrolled, setScrolled] = useState(false)
   const scrollToSection = useScrollToSection()
 
@@ -43,6 +43,14 @@ export function SiteNav() {
           : "border-transparent bg-canvas/0 backdrop-blur-none"
       )}
     >
+      <motion.div
+        aria-hidden="true"
+        className={cn(
+          "absolute inset-x-0 -bottom-px h-px origin-left bg-brand transition-opacity duration-200",
+          scrolled ? "opacity-100" : "opacity-0"
+        )}
+        style={{ scaleX: scrollYProgress }}
+      />
       <nav aria-label="Primary" className="shell flex h-16 items-center justify-between gap-4">
         <Link
           href="/"

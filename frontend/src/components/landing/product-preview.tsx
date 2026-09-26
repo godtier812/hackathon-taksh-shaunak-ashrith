@@ -10,10 +10,10 @@ export function ProductPreview() {
   return (
     <section
       aria-labelledby="preview-title"
-      className="relative -mt-[22svh] pb-24 md:-mt-[28svh] md:pb-36"
+      className="relative -mt-[22svh] pb-20 md:-mt-[28svh] md:pb-24"
     >
       <div className="shell">
-        <Reveal className="mx-auto max-w-[40rem] text-center">
+        <Reveal blur fadeDuration={0.7} className="mx-auto max-w-[40rem] text-center">
           <h2 id="preview-title" className="type-section text-ink">
             Margaret&rsquo;s record, at a glance.
           </h2>
@@ -22,7 +22,7 @@ export function ProductPreview() {
           </p>
         </Reveal>
 
-        <div className="mt-10 md:mt-14">
+        <div className="mt-10 md:mt-12">
           <PreviewFrame>
             <DashboardView variant="preview" data={demoDashboard} />
           </PreviewFrame>

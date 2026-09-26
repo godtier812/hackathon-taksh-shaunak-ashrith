@@ -76,11 +76,11 @@ export function DashboardView({
             </Reveal>
           ))}
         </div>
-        <p data-preview-end className="mt-4 type-caption text-ink-tertiary">
+        <p data-preview-end className="mt-3 type-caption text-ink-tertiary">
           {data.metricsFootnote}
         </p>
 
-        <Reveal delay={0.55} y={8} amount={0.15} className="mt-10">
+        <Reveal delay={0.55} y={8} amount={0.15} className="mt-8">
           <SummaryCard summary={data.summary} headingId={isPage ? "summary-title" : undefined} />
         </Reveal>
       </div>

@@ -83,16 +83,16 @@
   --surface: #ffffff;
   --surface-muted: #f2efe8;
   --ink: #0f1115;
-  --ink-secondary: #5a606b;
-  --ink-tertiary: #666b76;
-  --line: #e7e3db;
-  --line-strong: #d8d3c9;
+  --ink-secondary: #676e7b;
+  --ink-tertiary: #676e7b;
+  --line: #e5e7eb;
+  --line-strong: #d1d5db;
   --brand: #14213d;
   --brand-hover: #0c1630;
-  --accent-soft: #e9edfb;
-  --signal: #d98a1c;
-  --signal-text: #a45a0c;
-  --signal-soft: #fbf1e1;
+  --accent-soft: #eff6ff;
+  --signal: #d97706;
+  --signal-text: #b45309;
+  --signal-soft: #fffbeb;
   --neutral-trend: #6b7280;
 
   /* shadcn mapping, so copied components inherit the palette */
@@ -108,7 +108,7 @@
   --secondary-foreground: var(--ink);
   --muted: var(--surface-muted);
   --muted-foreground: var(--ink-secondary);
-  --accent: #3d5ad6;
+  --accent: #2563eb;
   --accent-foreground: #ffffff;
   --destructive: oklch(0.577 0.245 27.325);
   --border: var(--line);
@@ -245,7 +245,7 @@
 }
 
 @utility section-y {
-  padding-block: clamp(5rem, 3.5rem + 5vw, 9rem);
+  padding-block: clamp(4.5rem, 2.9rem + 4.2vw, 7.5rem);
 }
 
 /* Enter-only route transition (template.tsx). `backwards` fill leaves no transform behind. */

@@ -17,7 +17,7 @@ const pillSizes: Record<PillSize, string> = {
 
 const pillVariants: Record<PillVariant, string> = {
   primary: "bg-brand text-white hover:bg-brand-hover",
-  secondary: "border-line-strong bg-transparent text-ink hover:border-[#c9c3b7] hover:bg-surface-muted/70",
+  secondary: "border-line-strong bg-transparent text-ink hover:border-[#b8bec8] hover:bg-surface-muted/70",
 }
 
 export function pillClassName(variant: PillVariant = "primary", size: PillSize = "md", className?: string) {

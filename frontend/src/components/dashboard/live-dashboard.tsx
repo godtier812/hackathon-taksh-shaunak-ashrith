@@ -69,7 +69,7 @@ export function LiveDashboard() {
     return (
       <>
         <TopBar />
-        <main className="shell pt-8 pb-24 md:pt-10 md:pb-32">
+        <main className="shell pt-8 pb-20 md:pt-10 md:pb-24">
           <p role="status" className="font-mono type-caption text-ink-tertiary motion-safe:animate-pulse">
             Connecting to the MindTrace app…
           </p>
@@ -98,7 +98,7 @@ export function LiveDashboard() {
   return (
     <>
       <TopBar source={data.source} />
-      <main className="shell pt-8 pb-24 md:pt-10 md:pb-32">
+      <main className="shell pt-8 pb-20 md:pt-10 md:pb-24">
         <DashboardView
           key={data.source}
           variant="page"

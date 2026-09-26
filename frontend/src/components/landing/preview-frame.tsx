@@ -50,21 +50,26 @@ export function PreviewFrame({ children }: { children: ReactNode }) {
   const scaled = width >= MIN_SCALED_WIDTH
   const scale = scaled ? Math.min(1, width / INNER_WIDTH) : 1
 
-  const { scrollYProgress } = useScroll({ target: frameRef, offset: ["start end", "start 0.3"] })
-  const frameScale = useTransform(scrollYProgress, [0, 1], [0.94, 1])
-  const frameY = useTransform(scrollYProgress, [0, 1], [40, 0])
+  // Tilts back like a screen being raised, then flattens to face the reader as it scrolls in.
+  const { scrollYProgress } = useScroll({ target: frameRef, offset: ["start end", "start 0.22"] })
+  const tilt = useTransform(scrollYProgress, [0, 1], [scaled ? 22 : 10, 0])
+  const frameScale = useTransform(scrollYProgress, [0, 1], [0.92, 1])
+  const frameY = useTransform(scrollYProgress, [0, 1], [48, 0])
   const radius = useTransform(scrollYProgress, [0, 1], [28, 20])
-  const opacity = useTransform(scrollYProgress, ...padRange([0, 0.35], [0.35, 1]))
+  const opacity = useTransform(scrollYProgress, ...padRange([0, 0.3], [0.3, 1]))
 
   return (
+    <div className="[perspective:1400px]">
     <motion.div
       ref={frameRef}
       className="relative overflow-hidden border border-line bg-canvas shadow-raised"
       style={{
+        rotateX: reduced ? 0 : tilt,
         scale: reduced ? 1 : frameScale,
         y: reduced ? 0 : frameY,
         borderRadius: reduced ? 20 : radius,
         opacity,
+        transformOrigin: "50% 0%",
       }}
     >
       <div aria-hidden="true" className="flex h-10 items-center gap-3 border-b border-line bg-surface px-4">
@@ -105,5 +110,6 @@ export function PreviewFrame({ children }: { children: ReactNode }) {
         className="absolute inset-0 z-10 cursor-pointer"
       />
     </motion.div>
+    </div>
   )
 }

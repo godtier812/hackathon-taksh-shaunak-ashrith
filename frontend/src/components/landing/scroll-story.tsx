@@ -1,8 +1,9 @@
 "use client"
 
-import { motion, useScroll, useTransform, type MotionValue } from "motion/react"
+import { motion, useMotionValue, useScroll, useTransform, type MotionValue } from "motion/react"
 import { useMemo, useRef, type ReactNode } from "react"
 
+import { STORY_BAND_BOTTOM, STORY_BAND_TOP, useHandoff } from "@/components/landing/handoff"
 import type { StoryStage } from "@/lib/demo/margaret"
 import { useElementSize, usePrefersReducedMotion } from "@/lib/hooks"
 import { padRange, smoothstep } from "@/lib/motion"
@@ -141,7 +142,7 @@ function StaticWaveLayer({
   )
 }
 
-const BRACKET_SPACE = 34
+const BRACKET_SPACE = STORY_BAND_TOP
 
 function StoryWaveform({
   progress,
@@ -163,7 +164,7 @@ function StoryWaveform({
     [stages, bars]
   )
   const layout = useMemo(
-    () => ({ width, height: height - BRACKET_SPACE - 4, top: BRACKET_SPACE }),
+    () => ({ width, height: height - BRACKET_SPACE - STORY_BAND_BOTTOM, top: BRACKET_SPACE }),
     [width, height]
   )
   const cy = layout.top + layout.height / 2
@@ -347,12 +348,25 @@ function RevealWord({
 }
 
 export function ScrollStory({ stages }: { stages: StoryStage[] }) {
-  const sectionRef = useRef<HTMLElement>(null)
+  const handoff = useHandoff()
+  const localSectionRef = useRef<HTMLElement>(null)
+  const localStageRef = useRef<HTMLDivElement>(null)
+  const localWaveRef = useRef<HTMLDivElement>(null)
+  const sectionRef = handoff?.storyRef ?? localSectionRef
+  const stageRef = handoff?.stageRef ?? localStageRef
+  const waveRef = handoff?.waveRef ?? localWaveRef
   const { scrollYProgress: progress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end end"],
   })
   const reduced = usePrefersReducedMotion()
+
+  // While the hero waveform travels in, the stage text waits until the path is clear
+  // and the story waveform takes over only once the two are aligned.
+  const arrived = useMotionValue(1)
+  const entry = handoff && !reduced ? handoff.progress : arrived
+  const textIn = useTransform(entry, ...padRange([0.9, 1], [0, 1]))
+  const waveIn = useTransform(entry, ...padRange([0.97, 1], [0, 1]))
   const [day1, day30, day90] = stages
   const longest = Math.max(...day90.wave.pauses.map((p) => p.seconds))
 
@@ -380,15 +394,19 @@ export function ScrollStory({ stages }: { stages: StoryStage[] }) {
         {day90.wave.repeats.length} phrases repeat. Each conversation is compared only with her own baseline.
       </p>
 
-      <div className="sticky top-0 h-svh overflow-hidden">
+      <div ref={stageRef} className="sticky top-0 h-svh overflow-hidden">
         <div className="shell flex h-full flex-col justify-center pt-16 pb-8">
-          <StoryStageContent progress={progress} stages={stages} reduced={reduced} chips={chips} />
-          <div className="mt-8 md:mt-10">
+          <motion.div style={{ opacity: textIn }}>
+            <StoryStageContent progress={progress} stages={stages} reduced={reduced} chips={chips} />
+          </motion.div>
+          <motion.div ref={waveRef} className="mt-8 md:mt-10" style={{ opacity: waveIn }}>
             <StoryWaveform progress={progress} stages={stages} reduced={reduced} describedBy="story-summary" />
-          </div>
-          <StageFade progress={progress} className="mt-8 md:mt-12">
-            <TimelineRail progress={progress} stages={stages} />
-          </StageFade>
+          </motion.div>
+          <motion.div className="mt-8 md:mt-12" style={{ opacity: textIn }}>
+            <StageFade progress={progress}>
+              <TimelineRail progress={progress} stages={stages} />
+            </StageFade>
+          </motion.div>
         </div>
         <ResolutionLine progress={progress} reduced={reduced} />
       </div>
