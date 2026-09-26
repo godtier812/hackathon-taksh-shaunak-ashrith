@@ -4,7 +4,7 @@
 - Reset history: close the app, delete `sessions.json` (the path is printed in the terminal at startup, normally `%APPDATA%\app\sessions.json`), then start `npm run dev`. The app re-seeds four weeks of check-ins.
 - Start the caregiver website and confirm it loads data from http://127.0.0.1:4317/api/health.
 - Turn "Read instructions aloud" on. Test the mic once.
-- Optional but better: replace the text-to-speech demo clips with real voices. Record each script in `app/src/renderer/src/lib/scripts.ts`, click **Download recording** on the results screen, and save it as `app/src/renderer/public/samples/<task>-<healthy|markers>.webm`. A `.webm` file takes priority over the `.wav` placeholder.
+- Optional but better: replace the text-to-speech demo clips with real voices. Record each script in `backend/src/renderer/src/lib/scripts.ts`, click **Download recording** on the results screen, and save it as `backend/src/renderer/public/samples/<task>-<healthy|markers>.webm`. A `.webm` file takes priority over the `.wav` placeholder.
 
 ## Script
 1. **Problem (20 s):** Around 75% of dementia cases go undiagnosed. Speech changes, like longer pauses, slower speech and word-finding trouble, can appear years before a diagnosis, and a voice check-in costs nothing.

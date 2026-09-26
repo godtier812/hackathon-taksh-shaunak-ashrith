@@ -9,14 +9,14 @@ Website (browser) ──fetch──▶ http://127.0.0.1:4317/api ──▶ EchoM
 ```
 
 ## Run it
-1. Start the app: `cd app` then `npm run dev`. The terminal prints `EchoMind API listening on http://127.0.0.1:4317/api`.
+1. Start the app: `cd backend` then `npm run dev`. The terminal prints `EchoMind API listening on http://127.0.0.1:4317/api`.
 2. Serve the website from an allowed origin: `http://localhost:3000`, `:5173` or `:5174` (or the `127.0.0.1` equivalents). To allow another origin, start the app like this in PowerShell: `$env:ECHOMIND_ALLOWED_ORIGINS='http://localhost:8080'; npm run dev`. Use `*` to allow any origin (demo only).
 3. Sanity check: open http://127.0.0.1:4317/api/health.
 
 The API only listens on `127.0.0.1`, so the website must run on the same computer as the app. A cloud version would swap this for a shared database with the same JSON shapes.
 
 ## Typed client
-Copy `app/src/shared/types.ts`, `api.ts` and `apiClient.ts` into the website, or import them by relative path. They have no dependencies.
+Copy `backend/src/shared/types.ts`, `api.ts` and `apiClient.ts` into the website, or import them by relative path. They have no dependencies.
 
 ```ts
 import { createEchoMindClient } from './echomind/apiClient'
@@ -75,7 +75,7 @@ Errors always look like `{ "error": "message" }`: 400 bad parameters, 404 not fo
   "waveform": [0.02, 0.41, 0.87, 1, 0.33]
 }
 ```
-The full types are in `app/src/shared/types.ts`.
+The full types are in `backend/src/shared/types.ts`.
 
 ## How to render each part (matching the desktop app)
 - **Score ring:** `score.score` out of 100, colored by `score.band` (green `#2e9e6a`, yellow `#d99a1e`, red `#d64545`). The pill text is `score.label`; the headline is `score.message`.
