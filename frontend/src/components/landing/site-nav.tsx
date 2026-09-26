@@ -16,7 +16,7 @@ const sections = [
 ]
 
 const linkClass =
-  "rounded-full px-3 py-2 text-[14px] font-medium text-ink-secondary transition-colors duration-150 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+  "whitespace-nowrap rounded-full px-3 py-2 text-[14px] font-medium text-ink-secondary transition-colors duration-150 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
 
 export function SiteNav() {
   const { scrollY, scrollYProgress } = useScroll()
@@ -61,7 +61,7 @@ export function SiteNav() {
         </Link>
 
         <div className="flex items-center gap-1 md:gap-2">
-          <div className="hidden items-center md:flex">
+          <div className="hidden items-center lg:flex">
             {sections.map((item) => (
               <a
                 key={item.href}
