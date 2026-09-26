@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Server } from 'http'
 import type { AddressInfo } from 'net'
 import { corsHeaders, startApiServer, type ApiDeps } from './apiServer'
-import { createEchoMindClient, type EchoMindClient } from '../shared/apiClient'
+import { createMindTraceClient, type MindTraceClient } from '../shared/apiClient'
 import type { Session, TaskId } from '../shared/types'
 
 const s1 = { id: 's1', createdAt: '2026-09-01T00:00:00.000Z' } as unknown as Session
@@ -11,7 +11,7 @@ const s2 = { id: 's2', createdAt: '2026-09-02T00:00:00.000Z' } as unknown as Ses
 let server: Server
 let deps: ApiDeps
 let base: string
-let client: EchoMindClient
+let client: MindTraceClient
 
 beforeEach(async () => {
   deps = {
@@ -24,7 +24,7 @@ beforeEach(async () => {
   server = startApiServer(deps, 0)
   await new Promise<void>((resolve) => server.once('listening', () => resolve()))
   base = `http://127.0.0.1:${(server.address() as AddressInfo).port}/api`
-  client = createEchoMindClient(base)
+  client = createMindTraceClient(base)
 })
 
 afterEach(async () => {
@@ -34,9 +34,9 @@ afterEach(async () => {
 
 const audio = (bytes: number[]): Blob => new Blob([new Uint8Array(bytes)], { type: 'audio/webm' })
 
-describe('EchoMind API', () => {
+describe('MindTrace API', () => {
   it('reports health', async () => {
-    expect(await client.health()).toEqual({ ok: true, app: 'EchoMind', version: 1 })
+    expect(await client.health()).toEqual({ ok: true, app: 'MindTrace', version: 1 })
   })
 
   it('lists sessions and returns latest or by id', async () => {

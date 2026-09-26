@@ -1,7 +1,7 @@
-# EchoMind demo (3 minutes)
+# MindTrace demo (3 minutes)
 
 ## Before going on stage
-- Reset history: close the app, delete `sessions.json` (the path is printed in the terminal at startup, normally `%APPDATA%\app\sessions.json`), then start `npm run dev`. The app re-seeds four weeks of check-ins.
+- Reset history: close the app, delete `sessions.json` (the path is printed in the terminal at startup, normally `%APPDATA%\mindtrace-backend\sessions.json`), then start `npm run dev`. The app re-seeds four weeks of check-ins.
 - Start the caregiver website and confirm it loads data from http://127.0.0.1:4317/api/health.
 - Turn "Read instructions aloud" on. Test the mic once.
 - Optional but better: replace the text-to-speech demo clips with real voices. Record each script in `backend/src/renderer/src/lib/scripts.ts`, click **Download recording** on the results screen, and save it as `backend/src/renderer/public/samples/<task>-<healthy|markers>.webm`. A `.webm` file takes priority over the `.wav` placeholder.

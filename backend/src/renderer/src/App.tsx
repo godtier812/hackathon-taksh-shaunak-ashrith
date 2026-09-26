@@ -101,7 +101,7 @@ export default function App(): JSX.Element {
     <div className="app">
       <header className="app-header no-print">
         <button className="brand" onClick={toHome}>
-          EchoMind
+          MindTrace
         </button>
         <SettingsBar settings={settings} onToggle={toggle} />
       </header>

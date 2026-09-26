@@ -55,7 +55,7 @@ export function ReportScreen({ sessions, onBack }: Props): JSX.Element {
       </div>
 
       <header>
-        <h1>EchoMind speech check-in report</h1>
+        <h1>MindTrace speech check-in report</h1>
         <p className="muted">
           {sessions.length} check-ins · {formatDate(first.createdAt)} –{' '}
           {formatDate(latest.createdAt)} · Generated {formatDate(new Date().toISOString())}

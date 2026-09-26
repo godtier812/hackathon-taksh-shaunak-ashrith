@@ -1,16 +1,16 @@
-# EchoMind website integration guide
+# MindTrace website integration guide
 
-The EchoMind desktop app is the **processing engine**. While it runs, it serves a local HTTP API. The website reads check-ins from it and can send new recordings for the app to analyze. The website never processes audio itself. Every session comes back **display-ready**: score text, factor explanations, baseline comparison and waveform are all included.
+The MindTrace desktop app is the **processing engine**. While it runs, it serves a local HTTP API. The website reads check-ins from it and can send new recordings for the app to analyze. The website never processes audio itself. Every session comes back **display-ready**: score text, factor explanations, baseline comparison and waveform are all included.
 
 ```
-Website (browser) ──fetch──▶ http://127.0.0.1:4317/api ──▶ EchoMind app
+Website (browser) ──fetch──▶ http://127.0.0.1:4317/api ──▶ MindTrace app
                                                          ├─ main process: API + sessions.json
                                                          └─ renderer: decode audio, measure, score
 ```
 
 ## Run it
-1. Start the app: `cd backend` then `npm run dev`. The terminal prints `EchoMind API listening on http://127.0.0.1:4317/api`.
-2. Serve the website from an allowed origin: `http://localhost:3000`, `:5173` or `:5174` (or the `127.0.0.1` equivalents). To allow another origin, start the app like this in PowerShell: `$env:ECHOMIND_ALLOWED_ORIGINS='http://localhost:8080'; npm run dev`. Use `*` to allow any origin (demo only).
+1. Start the app: `cd backend` then `npm run dev`. The terminal prints `MindTrace API listening on http://127.0.0.1:4317/api`.
+2. Serve the website from an allowed origin: `http://localhost:3000`, `:5173` or `:5174` (or the `127.0.0.1` equivalents). To allow another origin, start the app like this in PowerShell: `$env:MINDTRACE_ALLOWED_ORIGINS='http://localhost:8080'; npm run dev`. Use `*` to allow any origin (demo only).
 3. Sanity check: open http://127.0.0.1:4317/api/health.
 
 The API only listens on `127.0.0.1`, so the website must run on the same computer as the app. A cloud version would swap this for a shared database with the same JSON shapes.
@@ -19,23 +19,23 @@ The API only listens on `127.0.0.1`, so the website must run on the same compute
 Copy `backend/src/shared/types.ts`, `api.ts` and `apiClient.ts` into the website, or import them by relative path. They have no dependencies.
 
 ```ts
-import { createEchoMindClient } from './echomind/apiClient'
-const echomind = createEchoMindClient() // defaults to http://127.0.0.1:4317/api
+import { createMindTraceClient } from './mindtrace/apiClient'
+const mindtrace = createMindTraceClient() // defaults to http://127.0.0.1:4317/api
 
-const sessions = await echomind.listSessions() // oldest first
-const latest = await echomind.latestSession()
+const sessions = await mindtrace.listSessions() // oldest first
+const latest = await mindtrace.latestSession()
 ```
 
 ## Endpoints
 | Method | Path | Returns |
 |---|---|---|
-| GET | `/api/health` | `{ ok: true, app: "EchoMind", version: 1 }` |
+| GET | `/api/health` | `{ ok: true, app: "MindTrace", version: 1 }` |
 | GET | `/api/sessions` | `Session[]`, oldest first |
 | GET | `/api/sessions/latest` | `Session` (404 if none) |
 | GET | `/api/sessions/:id` | `Session` (404 if unknown) |
 | POST | `/api/analyze?task=reading\|fluency\|story&source=live` | Body: raw audio bytes (webm/ogg/mp4/wav), up to 20 MB. Returns **201** with the saved `Session`. |
 
-Errors always look like `{ "error": "message" }`: 400 bad parameters, 404 not found, 413 too large, 422 analysis failed (for example "We couldn't hear enough speech…"; show it to the user), 500 unexpected. If `fetch` itself throws a `TypeError`, the app isn't running, so show "Open the EchoMind app on this computer."
+Errors always look like `{ "error": "message" }`: 400 bad parameters, 404 not found, 413 too large, 422 analysis failed (for example "We couldn't hear enough speech…"; show it to the user), 500 unexpected. If `fetch` itself throws a `TypeError`, the app isn't running, so show "Open the MindTrace app on this computer."
 
 ## The Session object (trimmed example)
 ```json
@@ -84,7 +84,7 @@ The full types are in `backend/src/shared/types.ts`.
 - **Pause map:** draw `waveform` values (0..1) as bars across the full width. Shade each `acoustics.pauses[]` from `startSec / acoustics.durationSec` to `endSec / acoustics.durationSec` (amber, about 35% opacity). Seeded history has an empty `waveform`, so hide the map then.
 - **Transcript:** render `linguistic.transcript[]` in order and style by `kind`: `filler` (amber background), `repetition` (wavy underline), `wordfinding` (red tint, italic), `pause` (grey "…" chip), `word` (plain). Show `linguistic.notes[]` below it.
 - **Trend:** plot `score.score` against `createdAt` from `listSessions()`, with guide lines at 75 and 55.
-- **Always show:** "EchoMind is a screening aid, not a diagnosis. If you notice ongoing changes, talk to a doctor."
+- **Always show:** "MindTrace is a screening aid, not a diagnosis. If you notice ongoing changes, talk to a doctor."
 
 ## Recording on the website and letting the app process it
 ```ts
@@ -95,7 +95,7 @@ recorder.ondataavailable = (e) => chunks.push(e.data)
 recorder.onstop = async () => {
   stream.getTracks().forEach((t) => t.stop())
   const audio = new Blob(chunks, { type: recorder.mimeType })
-  const session = await echomind.analyze(audio, 'reading') // app analyzes, saves, returns it
+  const session = await mindtrace.analyze(audio, 'reading') // app analyzes, saves, returns it
   // render `session` using the guide above
 }
 recorder.start()

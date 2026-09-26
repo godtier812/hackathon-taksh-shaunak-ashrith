@@ -32,7 +32,7 @@ export function analyzeInRenderer(
   source: SessionSource
 ): Promise<Session> {
   if (!win || win.isDestroyed())
-    return Promise.reject(new Error('The EchoMind app window is not open'))
+    return Promise.reject(new Error('The MindTrace app window is not open'))
   const requestId = randomUUID()
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {

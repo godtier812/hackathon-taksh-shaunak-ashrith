@@ -18,7 +18,7 @@ export function HistoryScreen({ sessions, onBack, onReport }: Props): JSX.Elemen
       <section className="card">
         <h1>Your check-in history</h1>
         <p className="muted">
-          Family members see this same trend on the EchoMind caregiver website.
+          Family members see this same trend on the MindTrace caregiver website.
         </p>
         <TrendChart sessions={sessions} />
       </section>

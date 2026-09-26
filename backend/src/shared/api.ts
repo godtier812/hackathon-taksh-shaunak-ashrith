@@ -10,7 +10,7 @@ export const REMOTE_SOURCES: readonly SessionSource[] = ['live', 'sample-healthy
 
 export interface HealthResponse {
   ok: true
-  app: 'EchoMind'
+  app: 'MindTrace'
   version: number
 }
 

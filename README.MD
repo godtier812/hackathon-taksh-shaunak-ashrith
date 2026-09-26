@@ -1,4 +1,4 @@
-# EchoMind
+# MindTrace
 
 A voice check-in app that screens for early speech markers of Alzheimer's and dementia.
 

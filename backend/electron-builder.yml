@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: app
+appId: com.mindtrace.app
+productName: MindTrace
 directories:
   buildResources: build
 files:

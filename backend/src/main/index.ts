@@ -42,9 +42,9 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
-  electronApp.setAppUserModelId('com.echomind.app')
+  electronApp.setAppUserModelId('com.mindtrace.app')
   app.on('browser-window-created', (_, window) => optimizer.watchWindowShortcuts(window))
-  console.log('EchoMind sessions file:', sessionsFile())
+  console.log('MindTrace sessions file:', sessionsFile())
 
   ipcMain.handle('sessions:list', () => listSessions())
   ipcMain.handle('sessions:save', (_event, session: Session) => saveSession(session))
@@ -53,7 +53,7 @@ app.whenReady().then(() => {
     if (!win) return { saved: false }
     const pdf = await win.webContents.printToPDF({ pageSize: 'A4', printBackground: true })
     const { canceled, filePath } = await dialog.showSaveDialog(win, {
-      defaultPath: `EchoMind-report-${new Date().toISOString().slice(0, 10)}.pdf`,
+      defaultPath: `MindTrace-report-${new Date().toISOString().slice(0, 10)}.pdf`,
       filters: [{ name: 'PDF', extensions: ['pdf'] }]
     })
     if (canceled || !filePath) return { saved: false }

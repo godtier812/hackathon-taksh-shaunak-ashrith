@@ -6,7 +6,7 @@ export interface Settings {
   voiceGuide: boolean
 }
 
-const KEY = 'echomind-settings'
+const KEY = 'mindtrace-settings'
 const DEFAULTS: Settings = { largeText: false, highContrast: false, voiceGuide: true }
 
 function load(): Settings {
