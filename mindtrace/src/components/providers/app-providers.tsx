@@ -5,7 +5,6 @@ import { useEffect, type ReactNode } from "react"
 
 import { SmoothScroll } from "@/components/providers/smooth-scroll"
 import { AppToaster } from "@/components/shared/app-toaster"
-import { TooltipProvider } from "@/components/ui/tooltip"
 import { usePrefersReducedMotion } from "@/lib/hooks"
 
 export function AppProviders({ children }: { children: ReactNode }) {
@@ -18,9 +17,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
   return (
     <MotionConfig reducedMotion={reduced ? "always" : "never"}>
-      <SmoothScroll>
-        <TooltipProvider delay={150}>{children}</TooltipProvider>
-      </SmoothScroll>
+      <SmoothScroll>{children}</SmoothScroll>
       <AppToaster />
     </MotionConfig>
   )

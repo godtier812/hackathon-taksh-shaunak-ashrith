@@ -320,3 +320,13 @@
     color: var(--ink);
   }
 }
+
+@media print {
+  @page {
+    margin: 16mm;
+  }
+  html,
+  body {
+    background: #ffffff;
+  }
+}

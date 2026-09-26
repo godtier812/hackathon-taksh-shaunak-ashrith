@@ -14,10 +14,25 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 })
 
+const description =
+  "MindTrace turns everyday conversations into a longitudinal communication record, helping caregivers notice gradual changes worth discussing with a healthcare professional. It does not diagnose any condition."
+
 export const metadata: Metadata = {
+  // Absolute URLs for the share preview; set NEXT_PUBLIC_SITE_URL when deployed.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "MindTrace: Communication, over time",
-  description:
-    "MindTrace turns everyday conversations into a longitudinal communication record, helping caregivers notice gradual changes worth discussing with a healthcare professional. It does not diagnose any condition.",
+  description,
+  openGraph: {
+    title: "MindTrace: Communication, over time",
+    description,
+    siteName: "MindTrace",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MindTrace: Communication, over time",
+    description,
+  },
 }
 
 export const viewport: Viewport = {

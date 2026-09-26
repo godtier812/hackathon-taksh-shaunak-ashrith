@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MindTrace
 
-## Getting Started
+**Communication, over time.** MindTrace turns everyday conversations into a longitudinal communication record, so caregivers can notice gradual changes (pauses, repetition, vocabulary, speech rate, coherence) that are easy to miss day to day.
 
-First, run the development server:
+MindTrace compares each person only with their own baseline. **It does not diagnose any condition.** It helps caregivers notice changes worth discussing with a qualified healthcare professional.
+
+![Landing page](docs/screenshots/hero.png)
+
+> **Demo build.** Margaret Reynolds is a fictional person and every value in this app is synthetic, generated deterministically in `src/lib/demo/margaret.ts`. Recording, transcription and analysis are not built yet ("Start a session" and "Analyze new conversation" show a placeholder).
+
+## What's in the demo
+
+**Landing page (`/`)**
+
+- A hero with Margaret's Day 1 conversation as a live, speech-like waveform.
+- A scroll story: the hero waveform glides into a pinned stage and changes from Day 1 to Day 30 to Day 90 as you scroll, with pauses, repeated phrases and a faint Day 1 "ghost" for comparison.
+- The real dashboard, scaled into a frame that tilts into view.
+- "The science": the five indicators, each with a small animated diagram.
+
+**Dashboard (`/dashboard`)**
+
+- A composite communication index against Margaret's June baseline band (30D / 90D / All).
+- Five indicator cards. Click one for its full history, June range and a plain-language reading.
+- Recent conversations. Select one to find it on the chart.
+- Caregiver notes, shown as markers on the chart.
+- A 90-day summary, and a printable appointment summary at `/dashboard/summary`.
+
+| Scroll story | Dashboard |
+| --- | --- |
+| ![Day 90 in the scroll story](docs/screenshots/story.png) | ![Dashboard](docs/screenshots/dashboard.png) |
+| **Indicator detail** | **Appointment summary** |
+| ![Pause frequency detail panel](docs/screenshots/detail.png) | ![Printable summary](docs/screenshots/summary.png) |
+
+## Run it locally
+
+Requires Node.js 20 or newer.
 
 ```bash
+cd mindtrace
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Development server with hot reload |
+| `npm run build` | Production build (all pages are static) |
+| `npm run start` | Serve the production build |
+| `npm run lint` | ESLint |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### The Motion switch
 
-## Learn More
+The top bar has a **Motion** switch. It starts from the device's "reduce motion" setting (Windows: *Settings → Accessibility → Visual effects → Animation effects*). Turn it on to run every animation during a demo, even on a machine that asks for reduced motion. The choice is remembered in that browser.
 
-To learn more about Next.js, take a look at the following resources:
+### Share previews
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Link previews use a generated image (`src/app/opengraph-image.tsx`). When deploying, set `NEXT_PUBLIC_SITE_URL` to the site's public URL so previews resolve correctly.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Tech stack
 
-## Deploy on Vercel
+- Next.js 16 (App Router), React 19, TypeScript
+- Tailwind CSS v4, shadcn/ui on Base UI
+- Motion (animation), Lenis (smooth scrolling), Recharts (charts)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project layout
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+  app/                  routes: landing, dashboard, dashboard/summary, icons, share image
+  components/
+    landing/            hero, scroll story, preview, science section, nav
+    dashboard/          chart, metric cards and detail panel, conversations, notes
+    summary/            printable summary pieces
+    shared/, providers/ buttons, reveal, Motion switch, smooth scroll
+  lib/
+    demo/margaret.ts    all synthetic demo data (single source of truth)
+    waveform.ts         seeded speech-envelope generator
+docs/
+  phase1-plan.md        original design and build plan
+  screenshots/          images used in this README
+```

@@ -23,21 +23,28 @@ export function MotionToggle({ className }: { className?: string }) {
         className
       )}
     >
-      <span className="hidden font-mono text-[12px] sm:inline">Motion</span>
-      <span
-        aria-hidden="true"
-        className={cn(
-          "relative inline-flex h-[18px] w-8 items-center rounded-full border transition-colors duration-200",
-          on ? "border-brand bg-brand" : "border-line-strong bg-surface-muted"
-        )}
-      >
-        <span
-          className={cn(
-            "absolute left-[2px] size-3 rounded-full bg-white shadow-rest transition-transform duration-200 ease-out-expo",
-            on ? "translate-x-[14px]" : "translate-x-0 ring-1 ring-line-strong"
-          )}
-        />
-      </span>
+      <span className="hidden font-mono text-[12px] lg:inline">Motion</span>
+      <SwitchTrack on={on} />
     </button>
+  )
+}
+
+/** The visual track and thumb, shared with the mobile menu's Motion item. */
+export function SwitchTrack({ on }: { on: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        "relative inline-flex h-[18px] w-8 shrink-0 items-center rounded-full border transition-colors duration-200",
+        on ? "border-brand bg-brand" : "border-line-strong bg-surface-muted"
+      )}
+    >
+      <span
+        className={cn(
+          "absolute left-[2px] size-3 rounded-full bg-white shadow-rest transition-transform duration-200 ease-out-expo",
+          on ? "translate-x-[14px]" : "translate-x-0 ring-1 ring-line-strong"
+        )}
+      />
+    </span>
   )
 }
