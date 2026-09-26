@@ -1,5 +1,6 @@
 import { useState, type JSX } from 'react'
 import { SettingsBar } from './components/SettingsBar'
+import { Wordmark } from './components/Wordmark'
 import { useRemoteAnalysis } from './hooks/useRemoteAnalysis'
 import { useSessions } from './hooks/useSessions'
 import { useSettings } from './hooks/useSettings'
@@ -101,7 +102,7 @@ export default function App(): JSX.Element {
     <div className="app">
       <header className="app-header no-print">
         <button className="brand" onClick={toHome}>
-          MindTrace
+          <Wordmark />
         </button>
         <SettingsBar settings={settings} onToggle={toggle} />
       </header>

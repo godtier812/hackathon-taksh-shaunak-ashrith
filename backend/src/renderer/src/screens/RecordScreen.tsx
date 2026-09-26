@@ -1,5 +1,6 @@
 import { useEffect, useState, type JSX } from 'react'
 import { LiveWaveform } from '../components/LiveWaveform'
+import { TaskIcon } from '../components/TaskIcon'
 import { MAX_RECORD_SEC, useRecorder } from '../hooks/useRecorder'
 import { formatDuration } from '../lib/format'
 import { loadSample } from '../lib/pipeline'
@@ -51,9 +52,8 @@ export function RecordScreen({ task, error, voiceGuide, onRecorded, onBack }: Pr
         ← Back
       </button>
       <section className="card">
-        <h1>
-          {def.icon} {def.title}
-        </h1>
+        <TaskIcon task={task} />
+        <h1>{def.title}</h1>
         <p className="lead">{def.instructions}</p>
         {def.passage && <blockquote className="passage">{def.passage}</blockquote>}
         <button className="btn ghost" onClick={() => speak(def.instructions)}>

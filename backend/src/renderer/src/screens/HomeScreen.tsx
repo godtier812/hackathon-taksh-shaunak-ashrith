@@ -1,6 +1,7 @@
 import type { JSX } from 'react'
 import { Disclaimer } from '../components/Disclaimer'
 import { ScoreGauge } from '../components/ScoreGauge'
+import { TaskIcon } from '../components/TaskIcon'
 import { formatDate } from '../lib/format'
 import { TASK_LIST } from '../lib/scripts'
 import type { Session, TaskId } from '../lib/types'
@@ -25,6 +26,7 @@ export function HomeScreen({ sessions, onStart, onHistory, onReport }: Props): J
     <div className="stack">
       <section className="card hero">
         <div>
+          <p className="eyebrow">Daily voice check-in</p>
           <h1>{greeting()}</h1>
           <p className="lead">
             A one-minute voice check-in helps you and your family notice changes early.
@@ -41,7 +43,7 @@ export function HomeScreen({ sessions, onStart, onHistory, onReport }: Props): J
       <div className="task-grid">
         {TASK_LIST.map((task) => (
           <button key={task.id} className="card task-card" onClick={() => onStart(task.id)}>
-            <span className="task-icon">{task.icon}</span>
+            <TaskIcon task={task.id} />
             <strong>{task.title}</strong>
             <span className="muted">{task.summary}</span>
           </button>
