@@ -6,15 +6,9 @@
  * the trend chart, metric cards, sparklines, scroll-story waveforms and summary.
  * All comparisons are against Margaret's own June baseline, never population norms.
  */
-import type {
-  ChartPoint,
-  ChartRange,
-  IndicatorKey,
-  MetricSummary,
-} from "@/lib/dashboard/types"
 import { formatDate, formatMonthYear, formatShortDate } from "@/lib/format"
 import { gaussian, mulberry32 } from "@/lib/random"
-import { buildWaveState, type WaveSegment, type WaveState } from "@/lib/waveform"
+import { buildWaveState, mixAmps, poolAmps, type WaveSegment, type WaveState } from "@/lib/waveform"
 
 const DAY_MS = 86_400_000
 const START = Date.UTC(2026, 5, 2) // Tue, Jun 2, 2026 — first recorded conversation
@@ -25,8 +19,7 @@ const WINDOW_DAYS = 14 // baseline = first two weeks, current = last two weeks
 const SESSION_WEEKDAYS = new Set([2, 4, 6]) // Tue, Thu, Sat (UTC)
 const SKIPPED = new Set([Date.UTC(2026, 6, 4), Date.UTC(2026, 7, 13), Date.UTC(2026, 8, 5)])
 
-/** Margaret's five indicators; live mode swaps coherence for filler words. */
-type DemoIndicatorKey = Exclude<IndicatorKey, "fillers">
+export type IndicatorKey = "pauses" | "repetition" | "vocabulary" | "speechRate" | "coherence"
 
 type IndicatorModel = {
   /** Baseline level in the indicator's own unit. */
@@ -40,22 +33,22 @@ type IndicatorModel = {
   weight: number
 }
 
-const INDICATORS: Record<DemoIndicatorKey, IndicatorModel> = {
-  pauses: { baseline: 9.5, change: 0.18, noise: 0.24, concern: "increase", weight: 0.25 }, // pauses / min
-  repetition: { baseline: 2.5, change: 0.12, noise: 0.09, concern: "increase", weight: 0.2 }, // repeated phrases / conversation
-  vocabulary: { baseline: 0.62, change: -0.06, noise: 0.006, concern: "decrease", weight: 0.25 }, // moving type–token ratio
-  speechRate: { baseline: 138, change: -0.01, noise: 1.6, concern: "either", weight: 0.1 }, // words / min
-  coherence: { baseline: 0.84, change: -0.04, noise: 0.007, concern: "decrease", weight: 0.2 }, // adjacent-sentence similarity
+const INDICATORS: Record<IndicatorKey, IndicatorModel> = {
+  pauses: { baseline: 9.5, change: 0.18, noise: 0.13, concern: "increase", weight: 0.25 }, // pauses / min
+  repetition: { baseline: 2.5, change: 0.12, noise: 0.05, concern: "increase", weight: 0.2 }, // repeated phrases / conversation
+  vocabulary: { baseline: 0.62, change: -0.06, noise: 0.0035, concern: "decrease", weight: 0.25 }, // moving type–token ratio
+  speechRate: { baseline: 138, change: -0.01, noise: 1.0, concern: "either", weight: 0.1 }, // words / min
+  coherence: { baseline: 0.84, change: -0.04, noise: 0.004, concern: "decrease", weight: 0.2 }, // adjacent-sentence similarity
 }
 
-const INDICATOR_KEYS = Object.keys(INDICATORS) as DemoIndicatorKey[]
+const INDICATOR_KEYS = Object.keys(INDICATORS) as IndicatorKey[]
 
 export type Session = {
   t: number
   day: number
   /** Composite demo index, 100 = mean of the first two weeks. */
   index: number
-  values: Record<DemoIndicatorKey, number>
+  values: Record<IndicatorKey, number>
 }
 
 const mean = (values: number[]) => values.reduce((sum, v) => sum + v, 0) / values.length
@@ -78,7 +71,7 @@ const rampLow = windowMean(rawRamp, inBaseline)
 const rampHigh = windowMean(rawRamp, inCurrent)
 const ramp = rawRamp.map((r) => (r - rampLow) / (rampHigh - rampLow))
 
-function indicatorSeries(key: DemoIndicatorKey, seed: number) {
+function indicatorSeries(key: IndicatorKey, seed: number) {
   const model = INDICATORS[key]
   const rand = mulberry32(seed)
   const noise = sessionDays.map(() => gaussian(rand) * model.noise)
@@ -93,7 +86,7 @@ function indicatorSeries(key: DemoIndicatorKey, seed: number) {
 
 const series = Object.fromEntries(
   INDICATOR_KEYS.map((key, i) => [key, indicatorSeries(key, 20260602 + i * 97)])
-) as Record<DemoIndicatorKey, number[]>
+) as Record<IndicatorKey, number[]>
 
 // Composite: 100 minus the weighted "concerning" deviation from Margaret's own baseline.
 const COMPOSITE_GAIN = 97
@@ -114,7 +107,7 @@ export const sessions: Session[] = sessionDates.map((t, i) => ({
   day: sessionDays[i],
   index: Math.round((rawComposite[i] + compositeOffset) * 10) / 10,
   values: Object.fromEntries(INDICATOR_KEYS.map((key) => [key, series[key][i]])) as Record<
-    DemoIndicatorKey,
+    IndicatorKey,
     number
   >,
 }))
@@ -135,6 +128,9 @@ export const patient = {
 
 export const BASELINE_INDEX = 100
 export const BASELINE_BAND: [number, number] = [97, 103]
+
+export type ChartRange = "30d" | "90d" | "all"
+export type ChartPoint = { t: number; index: number }
 
 const RANGE_DAYS: Record<ChartRange, number> = { "30d": 30, "90d": 90, all: Infinity }
 
@@ -176,13 +172,33 @@ export const chartSummary = `Margaret's composite communication index stayed clo
 
 /* ---------------------------------------------------------------- metrics */
 
-function percentChange(key: DemoIndicatorKey) {
+export type MetricTone = "signal" | "neutral"
+export type MetricDirection = "up" | "down" | "flat"
+
+export type MetricSummary = {
+  key: IndicatorKey
+  label: string
+  /** Percent change vs baseline, when the card shows a number. */
+  percent: number | null
+  /** Text value, when the card shows a word instead of a number. */
+  valueText: string | null
+  descriptor: string
+  direction: MetricDirection
+  tone: MetricTone
+  /** Small amber dot beside a neutral descriptor. */
+  signalDot: boolean
+  /** ~13 weekly means covering the last 90 days. */
+  sparkline: number[]
+  baseline: number
+}
+
+function percentChange(key: IndicatorKey) {
   const values = series[key]
   return (windowMean(values, inCurrent) / windowMean(values, inBaseline) - 1) * 100
 }
 
 const WEEKS = 13
-function weeklyMeans(key: DemoIndicatorKey) {
+function weeklyMeans(key: IndicatorKey) {
   const out: number[] = []
   for (let w = WEEKS - 1; w >= 0; w--) {
     const binEnd = END - w * 7 * DAY_MS
@@ -193,10 +209,10 @@ function weeklyMeans(key: DemoIndicatorKey) {
   return out
 }
 
-const pct = (key: DemoIndicatorKey) => Math.round(percentChange(key))
+const pct = (key: IndicatorKey) => Math.round(percentChange(key))
 
 function metric(
-  key: DemoIndicatorKey,
+  key: IndicatorKey,
   label: string,
   display: Pick<MetricSummary, "descriptor" | "direction" | "tone" | "signalDot"> & {
     showPercent: boolean
@@ -330,3 +346,184 @@ export const storyStages: StoryStage[] = [
     wave: buildWaveState(DAY_90, VOICE_SEED, 0.8),
   },
 ]
+
+/* ------------------------------------------------------ indicator detail */
+
+export type IndicatorDetail = {
+  key: IndicatorKey
+  label: string
+  unit: string
+  decimals: number
+  measures: string
+  /** Mean of the first two weeks (June baseline). */
+  baseline: number
+  /** Mean of the last two weeks. */
+  current: number
+  /** Lowest and highest values seen during the baseline window. */
+  baselineRange: [number, number]
+  history: { t: number; value: number }[]
+  reading: string
+}
+
+const DETAIL_COPY: Record<IndicatorKey, { label: string; unit: string; decimals: number; measures: string }> = {
+  pauses: {
+    label: "Pause frequency",
+    unit: "pauses / min",
+    decimals: 1,
+    measures: "How often Margaret pauses between phrases, per minute of speech. Short pauses are a normal part of conversation.",
+  },
+  repetition: {
+    label: "Repetition",
+    unit: "repeats / conversation",
+    decimals: 1,
+    measures: "Phrases or questions that recur within the same conversation.",
+  },
+  vocabulary: {
+    label: "Vocabulary diversity",
+    unit: "distinct-word ratio",
+    decimals: 3,
+    measures: "The share of distinct words among all words spoken, measured over a moving window so longer conversations compare fairly.",
+  },
+  speechRate: {
+    label: "Speech rate",
+    unit: "words / min",
+    decimals: 0,
+    measures: "How quickly Margaret speaks, in words per minute.",
+  },
+  coherence: {
+    label: "Semantic coherence",
+    unit: "coherence score",
+    decimals: 2,
+    measures: "How closely each sentence follows from the one before it, scored from 0 to 1.",
+  },
+}
+
+function formatValue(value: number, decimals: number) {
+  return value.toFixed(decimals)
+}
+
+export const indicatorDetails: Record<IndicatorKey, IndicatorDetail> = Object.fromEntries(
+  INDICATOR_KEYS.map((key) => {
+    const copy = DETAIL_COPY[key]
+    const values = series[key]
+    const baselineValues = values.filter((_, i) => inBaseline[i])
+    const baseline = windowMean(values, inBaseline)
+    const current = windowMean(values, inCurrent)
+    const change = Math.round((current / baseline - 1) * 100)
+    const direction = Math.abs(change) < 3 ? "stayed within" : change > 0 ? "risen above" : "eased below"
+    const reading =
+      Math.abs(change) < 3
+        ? `Over the past two weeks this has ${direction} her June baseline, averaging ${formatValue(current, copy.decimals)} ${copy.unit}.`
+        : `Over the past two weeks this has ${direction} her June baseline, from ${formatValue(baseline, copy.decimals)} to ${formatValue(current, copy.decimals)} ${copy.unit} (${change > 0 ? "+" : "−"}${Math.abs(change)}%). The change has been gradual rather than sudden.`
+    return [
+      key,
+      {
+        key,
+        ...copy,
+        baseline,
+        current,
+        baselineRange: [Math.min(...baselineValues), Math.max(...baselineValues)],
+        history: sessions.map((session) => ({ t: session.t, value: session.values[key] })),
+        reading,
+      },
+    ]
+  })
+) as Record<IndicatorKey, IndicatorDetail>
+
+/* ------------------------------------------------------- caregiver notes */
+
+export type CaregiverNote = { id: string; t: number; title: string; body: string }
+
+/** Notes a caregiver might add alongside the record (fictional, for context only). */
+export const caregiverNotes: CaregiverNote[] = [
+  {
+    id: "family-visit",
+    t: Date.UTC(2026, 5, 20),
+    title: "Family visit",
+    body: "The grandchildren stayed for the weekend. Mom was talkative and in good spirits.",
+  },
+  {
+    id: "poor-sleep",
+    t: Date.UTC(2026, 6, 14),
+    title: "Poor sleep",
+    body: "Up several times a night this week. She seemed tired during our calls.",
+  },
+  {
+    id: "cold",
+    t: Date.UTC(2026, 7, 6),
+    title: "Mild cold",
+    body: "A cold for a few days, so our conversations were shorter than usual.",
+  },
+  {
+    id: "word-finding",
+    t: Date.UTC(2026, 7, 27),
+    title: "Searching for words",
+    body: "She paused to find words a few times while telling a story about the garden.",
+  },
+  {
+    id: "appointment",
+    t: Date.UTC(2026, 8, 16),
+    title: "Check-up booked",
+    body: "Booked a routine appointment for October to talk through these changes with her doctor.",
+  },
+]
+
+/* --------------------------------------------------- recent conversations */
+
+export type ConversationFlag = { label: string; tone: MetricTone }
+
+export type RecentConversation = {
+  t: number
+  dateLabel: string
+  minutes: number
+  index: number
+  bars: number[]
+  flags: ConversationFlag[]
+}
+
+const [waveDay1, , waveDay90] = [DAY_1, DAY_30, DAY_90].map((script, i) =>
+  buildWaveState(script, VOICE_SEED, [1, 0.95, 0.8][i])
+)
+
+function sessionBars(session: Session, shiftFraction: number) {
+  const t = Math.min(1, Math.max(0, (100 - session.index) / 9.5))
+  const mixed = mixAmps(waveDay1.amps, waveDay90.amps, t)
+  const shift = Math.floor(shiftFraction * mixed.length)
+  return poolAmps([...mixed.slice(shift), ...mixed.slice(0, shift)], 40)
+}
+
+const FLAG_SOURCES: { key: IndicatorKey; label: string; tone: MetricTone }[] = [
+  { key: "pauses", label: "Pauses", tone: "signal" },
+  { key: "repetition", label: "Repetition", tone: "signal" },
+  { key: "vocabulary", label: "Vocabulary", tone: "neutral" },
+]
+
+/** The two largest changes in this conversation, against her June baseline. */
+function sessionFlags(session: Session): ConversationFlag[] {
+  const changes = FLAG_SOURCES.map((source) => ({
+    ...source,
+    pct: Math.round((session.values[source.key] / INDICATORS[source.key].baseline - 1) * 100),
+  }))
+    .filter((change) => Math.abs(change.pct) >= 5)
+    .sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct))
+    .slice(0, 2)
+  if (!changes.length) return [{ label: "Near baseline", tone: "neutral" }]
+  return changes.map((change) => ({
+    label: `${change.label} ${change.pct > 0 ? "+" : "−"}${Math.abs(change.pct)}%`,
+    tone: change.tone,
+  }))
+}
+
+const conversationRand = mulberry32(7000)
+
+export const recentConversations: RecentConversation[] = sessions
+  .slice(-6)
+  .reverse()
+  .map((session) => ({
+    t: session.t,
+    dateLabel: formatDate(session.t),
+    minutes: 9 + Math.floor(conversationRand() * 14),
+    index: session.index,
+    bars: sessionBars(session, conversationRand()),
+    flags: sessionFlags(session),
+  }))

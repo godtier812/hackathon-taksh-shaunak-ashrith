@@ -14,13 +14,23 @@ import {
   type TooltipContentProps,
 } from "recharts"
 
+import { useDashboard } from "@/components/dashboard/dashboard-context"
 import { ChartContainer, ChartTooltip, type ChartConfig } from "@/components/ui/chart"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import type { ChartPoint, ChartRange, DashboardData } from "@/lib/dashboard/types"
+import {
+  BASELINE_BAND,
+  BASELINE_INDEX,
+  caregiverNotes,
+  chartRanges,
+  chartSummary,
+  latestSession,
+  patient,
+  type CaregiverNote,
+  type ChartPoint,
+  type ChartRange,
+} from "@/lib/demo/margaret"
 import { formatDate, formatMonth, formatShortDate, formatSigned } from "@/lib/format"
 import { usePrefersReducedMotion } from "@/lib/hooks"
-
-type ChartData = DashboardData["chart"]
 
 const chartConfig = {
   index: { label: "Composite index", color: "var(--brand)" },
@@ -35,12 +45,7 @@ const RANGE_OPTIONS: { value: ChartRange; label: string }[] = [
 const isRange = (value: unknown): value is ChartRange =>
   RANGE_OPTIONS.some((option) => option.value === value)
 
-function TrendTooltip({
-  active,
-  payload,
-  baseline,
-  digits,
-}: Partial<TooltipContentProps<number, string>> & { baseline: number; digits: number }) {
+function TrendTooltip({ active, payload }: Partial<TooltipContentProps<number, string>>) {
   const point = payload?.[0]?.payload as ChartPoint | undefined
   if (!active || !point) return null
   return (
@@ -48,17 +53,17 @@ function TrendTooltip({
       <p className="font-mono type-caption text-ink-tertiary">{formatDate(point.t)}</p>
       <p className="mt-1.5 flex items-baseline gap-2">
         <span className="text-[18px] font-semibold tracking-[-0.02em] text-ink tabular-nums">
-          {point.index.toFixed(digits)}
+          {point.index.toFixed(1)}
         </span>
         <span className="type-caption text-ink-secondary tabular-nums">
-          {formatSigned(point.index - baseline, digits)} vs baseline
+          {formatSigned(point.index - BASELINE_INDEX, 1)} vs baseline
         </span>
       </p>
     </div>
   )
 }
 
-function LatestPoint({ cx, cy, latest }: { cx?: number; cy?: number; latest: ChartPoint }) {
+function LatestPoint({ cx, cy }: { cx?: number; cy?: number }) {
   if (cx == null || cy == null) return <g />
   return (
     <g className="animate-in fade-in-0 duration-300">
@@ -68,44 +73,106 @@ function LatestPoint({ cx, cy, latest }: { cx?: number; cy?: number; latest: Cha
         r={5}
         fill="var(--accent)"
         opacity={0}
-        className="[transform-box:fill-box] [transform-origin:center] motion-safe:animate-[point-halo_1.1s_var(--ease-out-expo)_both]"
+        className="[transform-box:fill-box] [transform-origin:center] motion-ok:animate-[point-halo_1.1s_var(--ease-out-expo)_both]"
       />
       <circle cx={cx} cy={cy} r={4.5} fill="var(--brand)" stroke="#ffffff" strokeWidth={2} />
       <text x={cx + 12} y={cy - 3} className="fill-ink-tertiary font-mono text-[11px]">
-        {formatShortDate(latest.t)}
+        {formatShortDate(latestSession.t)}
       </text>
       <text x={cx + 12} y={cy + 13} className="fill-ink text-[13px] font-semibold tabular-nums">
-        {Math.round(latest.index)}
+        {Math.round(latestSession.index)}
       </text>
     </g>
   )
 }
 
+/** Caregiver note marker along the foot of the chart. */
+function NoteMarker({
+  cx,
+  cy,
+  active,
+  interactive,
+  onHover,
+  onSelect,
+}: {
+  cx?: number
+  cy?: number
+  active: boolean
+  interactive: boolean
+  onHover: (point: { x: number; y: number } | null) => void
+  onSelect: () => void
+}) {
+  if (cx == null || cy == null) return <g />
+  return (
+    <g
+      className={interactive ? "cursor-pointer" : undefined}
+      onMouseEnter={interactive ? () => onHover({ x: cx, y: cy }) : undefined}
+      onMouseLeave={interactive ? () => onHover(null) : undefined}
+      onClick={interactive ? onSelect : undefined}
+    >
+      <circle cx={cx} cy={cy} r={12} fill="transparent" />
+      <rect
+        x={cx - 4.5}
+        y={cy - 4.5}
+        width={9}
+        height={9}
+        rx={1.5}
+        transform={`rotate(45 ${cx} ${cy})`}
+        fill={active ? "var(--accent)" : "var(--surface)"}
+        stroke={active ? "var(--accent)" : "var(--ink-tertiary)"}
+        strokeWidth={1.25}
+      />
+    </g>
+  )
+}
+
+/** Hover card for a caregiver note, positioned over the plot. */
+function NoteCard({ note, x, y }: { note: CaregiverNote; x: number; y: number }) {
+  return (
+    <div
+      className="pointer-events-none absolute z-10 w-[240px] -translate-x-1/2 -translate-y-full rounded-inner border border-line bg-surface px-3.5 py-3 shadow-raised animate-in fade-in-0 slide-in-from-bottom-1 duration-150"
+      style={{ left: x, top: y - 14 }}
+    >
+      <p className="font-mono type-caption text-ink-tertiary">Caregiver note · {formatShortDate(note.t)}</p>
+      <p className="mt-1 text-[14px] font-semibold text-ink">{note.title}</p>
+      <p className="mt-0.5 text-[13px] leading-snug text-ink-secondary">{note.body}</p>
+    </div>
+  )
+}
+
 /**
- * "Communication over time": the patient's score relative to their own baseline
- * (Margaret's composite demo index, or the live MindTrace check-in score).
- * The line draws once when the chart first enters the viewport.
+ * "Communication over time": Margaret's composite demo index relative to her own
+ * June baseline. The line draws once when the chart first enters the viewport.
+ * Conversations and caregiver notes chosen elsewhere on the dashboard are highlighted here.
  */
-export function TrendChart({ chart, interactive = true }: { chart: ChartData; interactive?: boolean }) {
-  const [range, setRange] = useState<ChartRange>("90d")
+export function TrendChart() {
+  const { interactive, range, setRange, selectedT, activeNoteId, selectNote } = useDashboard()
   const [drawn, setDrawn] = useState(false)
+  const [hover, setHover] = useState<{ id: string; x: number; y: number } | null>(null)
   const plotRef = useRef<HTMLDivElement>(null)
   const inView = useInView(plotRef, { once: true, amount: 0.4 })
   const reduced = usePrefersReducedMotion()
-  const { points, ticks, tickFormat } = chart.ranges[range]
-  const { latest } = chart
+  const { points, ticks, tickFormat } = chartRanges[range]
+  const first = points[0].t
+  const last = points[points.length - 1].t
+  const notes = caregiverNotes.filter((note) => note.t >= first && note.t <= last)
+  const selected = selectedT === null ? undefined : points.find((point) => point.t === selectedT)
+  const hoveredNote = hover ? caregiverNotes.find((note) => note.id === hover.id) : undefined
 
   return (
     <section
+      id="trend-chart"
       aria-labelledby={interactive ? "trend-title" : undefined}
-      className="rounded-card border border-line bg-surface p-5 shadow-rest @3xl:p-7"
+      className="scroll-mt-24 rounded-card border border-line bg-surface p-5 shadow-rest @3xl:p-7"
     >
       <div className="flex flex-col gap-4 @2xl:flex-row @2xl:items-start @2xl:justify-between">
         <div>
           <h2 id={interactive ? "trend-title" : undefined} className="type-section text-ink">
             Communication over time
           </h2>
-          <p className="mt-1.5 type-body text-ink-secondary">{chart.subtitle}</p>
+          <p className="mt-1.5 type-body text-ink-secondary">
+            Composite of five indicators, relative to Margaret&rsquo;s June baseline.
+          </p>
         </div>
         <Tabs
           value={range}
@@ -131,9 +198,9 @@ export function TrendChart({ chart, interactive = true }: { chart: ChartData; in
         </Tabs>
       </div>
 
-      <p className="sr-only">{chart.summary}</p>
+      <p className="sr-only">{chartSummary}</p>
 
-      <div ref={plotRef} aria-hidden="true" className="mt-5 @3xl:mt-6">
+      <div ref={plotRef} aria-hidden="true" className="relative mt-5 @3xl:mt-6">
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-[260px] w-full @3xl:h-[300px] [&_.recharts-cartesian-axis-tick-value]:fill-ink-tertiary [&_.recharts-cartesian-axis-tick-value]:font-mono [&_.recharts-cartesian-axis-tick-value]:text-[11px]"
@@ -149,15 +216,10 @@ export function TrendChart({ chart, interactive = true }: { chart: ChartData; in
                 <stop offset="100%" stopColor="var(--brand)" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid
-              vertical={false}
-              horizontalValues={chart.yTicks.filter((tick) => tick !== chart.baseline)}
-              stroke="var(--line)"
-              strokeOpacity={0.9}
-            />
+            <CartesianGrid vertical={false} horizontalValues={[90, 95]} stroke="var(--line)" strokeOpacity={0.9} />
             <ReferenceArea
-              y1={chart.baselineBand[0]}
-              y2={chart.baselineBand[1]}
+              y1={BASELINE_BAND[0]}
+              y2={BASELINE_BAND[1]}
               fill="var(--surface-muted)"
               fillOpacity={1}
               stroke="none"
@@ -169,7 +231,7 @@ export function TrendChart({ chart, interactive = true }: { chart: ChartData; in
                 className: "fill-ink-tertiary font-mono text-[11px]",
               }}
             />
-            <ReferenceLine y={chart.baseline} stroke="var(--line-strong)" strokeDasharray="3 4" />
+            <ReferenceLine y={BASELINE_INDEX} stroke="var(--line-strong)" strokeDasharray="3 4" />
             <XAxis
               dataKey="t"
               type="number"
@@ -183,8 +245,8 @@ export function TrendChart({ chart, interactive = true }: { chart: ChartData; in
               interval={0}
             />
             <YAxis
-              domain={chart.yDomain}
-              ticks={chart.yTicks}
+              domain={[86, 104]}
+              ticks={[90, 95, 100]}
               axisLine={false}
               tickLine={false}
               tickMargin={6}
@@ -192,8 +254,9 @@ export function TrendChart({ chart, interactive = true }: { chart: ChartData; in
             />
             {interactive ? (
               <ChartTooltip
-                cursor={{ stroke: "var(--line-strong)", strokeWidth: 1 }}
-                content={<TrendTooltip baseline={chart.baseline} digits={chart.valueDigits} />}
+                active={hover ? false : undefined}
+                cursor={hover ? false : { stroke: "var(--line-strong)", strokeWidth: 1 }}
+                content={<TrendTooltip />}
                 animationDuration={120}
                 wrapperStyle={{ outline: "none" }}
               />
@@ -214,22 +277,64 @@ export function TrendChart({ chart, interactive = true }: { chart: ChartData; in
                 onAnimationEnd={() => setDrawn(true)}
               />
             ) : null}
-            {inView && (drawn || reduced) ? (
+            {notes.map((note) => (
               <ReferenceDot
-                x={latest.t}
-                y={latest.index}
+                key={note.id}
+                x={note.t}
+                y={87.4}
                 r={0}
                 ifOverflow="visible"
-                shape={(props) => <LatestPoint cx={props.cx} cy={props.cy} latest={latest} />}
+                shape={(props) => (
+                  <NoteMarker
+                    cx={props.cx}
+                    cy={props.cy}
+                    active={activeNoteId === note.id}
+                    interactive={interactive}
+                    onHover={(point) => setHover(point ? { id: note.id, ...point } : null)}
+                    onSelect={() => selectNote(activeNoteId === note.id ? null : note.id)}
+                  />
+                )}
+              />
+            ))}
+            {selected ? (
+              <ReferenceLine x={selected.t} stroke="var(--accent)" strokeDasharray="3 3" strokeOpacity={0.7} />
+            ) : null}
+            {selected ? (
+              <ReferenceDot
+                x={selected.t}
+                y={selected.index}
+                r={5}
+                fill="var(--accent)"
+                stroke="#ffffff"
+                strokeWidth={2}
+                ifOverflow="visible"
+              />
+            ) : null}
+            {inView && (drawn || reduced) ? (
+              <ReferenceDot
+                x={latestSession.t}
+                y={latestSession.index}
+                r={0}
+                ifOverflow="visible"
+                shape={(props) => <LatestPoint cx={props.cx} cy={props.cy} />}
               />
             ) : null}
           </AreaChart>
         </ChartContainer>
+        {hover && hoveredNote ? <NoteCard note={hoveredNote} x={hover.x} y={hover.y} /> : null}
       </div>
 
       <div className="mt-4 flex flex-col gap-1 font-mono type-caption text-ink-tertiary @xl:flex-row @xl:justify-between">
-        <span>{chart.footerLeft}</span>
-        <span>{chart.footerRight}</span>
+        <span>
+          {patient.sessionCount} conversations · {patient.rangeLabel}
+        </span>
+        <span className="flex items-center gap-4">
+          <span className="inline-flex items-center gap-1.5">
+            <span aria-hidden="true" className="size-[7px] rotate-45 rounded-[1.5px] border border-ink-tertiary" />
+            Caregiver note
+          </span>
+          <span>Demo index · not a clinical measure</span>
+        </span>
       </div>
     </section>
   )

@@ -6,7 +6,9 @@ import Link from "next/link"
 import { useState, type MouseEvent } from "react"
 
 import { Wordmark } from "@/components/brand/wordmark"
+import { MobileMenu } from "@/components/landing/mobile-menu"
 import { useScrollToSection } from "@/components/providers/smooth-scroll"
+import { MotionToggle } from "@/components/shared/motion-toggle"
 import { PillLink } from "@/components/shared/pill"
 import { cn } from "@/lib/utils"
 
@@ -72,12 +74,15 @@ export function SiteNav() {
                 {item.label}
               </a>
             ))}
-            <Link href="/dashboard" className={linkClass}>
+            <Link href="/dashboard" className={cn(linkClass, "hidden lg:inline-flex")}>
               View demo
             </Link>
           </div>
-          <PillLink href="/dashboard" size="sm" className="ml-1 h-11 md:ml-3 md:h-10">
-            View Margaret&rsquo;s journey
+          <MotionToggle className="hidden md:ml-1 md:inline-flex" />
+          <MobileMenu />
+          <PillLink href="/dashboard" size="sm" className="ml-1 h-11 md:ml-2 md:h-10">
+            <span className="md:hidden">View demo</span>
+            <span className="hidden md:inline">View Margaret&rsquo;s journey</span>
             <ArrowRight data-icon="inline-end" strokeWidth={1.75} aria-hidden="true" />
           </PillLink>
         </div>

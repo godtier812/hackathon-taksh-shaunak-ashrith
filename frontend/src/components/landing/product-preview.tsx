@@ -4,7 +4,6 @@ import { DashboardView } from "@/components/dashboard/dashboard-view"
 import { PreviewFrame } from "@/components/landing/preview-frame"
 import { PillLink } from "@/components/shared/pill"
 import { Reveal } from "@/components/shared/reveal"
-import { demoDashboard } from "@/lib/dashboard/demo"
 
 export function ProductPreview() {
   return (
@@ -24,7 +23,7 @@ export function ProductPreview() {
 
         <div className="mt-10 md:mt-12">
           <PreviewFrame>
-            <DashboardView variant="preview" data={demoDashboard} />
+            <DashboardView variant="preview" />
           </PreviewFrame>
         </div>
 

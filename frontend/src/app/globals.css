@@ -4,6 +4,8 @@
 @import "lenis/dist/lenis.css";
 
 @custom-variant dark (&:is(.dark *));
+/* CSS animations that follow the Motion switch (data-motion is set on <html> at runtime). */
+@custom-variant motion-ok (&:where([data-motion="on"] *));
 
 @theme inline {
   --color-background: var(--background);
@@ -265,8 +267,14 @@
 @utility page-enter {
   animation: page-enter 350ms var(--ease-out-expo) backwards;
 
-  @media (prefers-reduced-motion: reduce) {
+  :where([data-motion="off"]) & {
     animation-name: page-enter-fade;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :where(:root:not([data-motion="on"])) & {
+      animation-name: page-enter-fade;
+    }
   }
 }
 
@@ -310,5 +318,15 @@
   ::selection {
     background: var(--accent-soft);
     color: var(--ink);
+  }
+}
+
+@media print {
+  @page {
+    margin: 16mm;
+  }
+  html,
+  body {
+    background: #ffffff;
   }
 }

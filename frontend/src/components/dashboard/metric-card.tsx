@@ -1,29 +1,11 @@
-import {
-  BookOpenText,
-  Gauge,
-  MessageCircleMore,
-  Minus,
-  Pause,
-  Repeat2,
-  TrendingDown,
-  TrendingUp,
-  Waypoints,
-  type LucideIcon,
-} from "lucide-react"
+import { ChevronRight, Minus, TrendingDown, TrendingUp, type LucideIcon } from "lucide-react"
 
+import { METRIC_ICONS } from "@/components/dashboard/metric-icons"
+import { MetricOpenButton } from "@/components/dashboard/metric-open-button"
 import { MetricValue } from "@/components/dashboard/metric-value"
 import { Sparkline } from "@/components/dashboard/sparkline"
-import type { IndicatorKey, MetricDirection, MetricSummary } from "@/lib/dashboard/types"
+import type { MetricDirection, MetricSummary } from "@/lib/demo/margaret"
 import { cn } from "@/lib/utils"
-
-const ICONS: Record<IndicatorKey, LucideIcon> = {
-  pauses: Pause,
-  repetition: Repeat2,
-  vocabulary: BookOpenText,
-  speechRate: Gauge,
-  coherence: Waypoints,
-  fillers: MessageCircleMore,
-}
 
 const GLYPHS: Record<MetricDirection, LucideIcon> = {
   up: TrendingUp,
@@ -32,15 +14,21 @@ const GLYPHS: Record<MetricDirection, LucideIcon> = {
 }
 
 export function MetricCard({ metric, delay = 0 }: { metric: MetricSummary; delay?: number }) {
-  const Icon = ICONS[metric.key]
+  const Icon = METRIC_ICONS[metric.key]
   const Glyph = GLYPHS[metric.direction]
   const signal = metric.tone === "signal"
 
   return (
-    <article className="flex h-full flex-col rounded-card border border-line bg-surface p-5 shadow-rest transition-[translate,box-shadow] duration-200 ease-out-expo hover:-translate-y-0.5 hover:shadow-raised">
+    <article className="group relative flex h-full flex-col rounded-card border border-line bg-surface p-5 shadow-rest transition-[translate,box-shadow] duration-200 ease-out-expo hover:-translate-y-0.5 hover:shadow-raised">
+      <MetricOpenButton metricKey={metric.key} label={metric.label} />
       <h3 className="flex items-center gap-2 type-label text-ink-secondary">
         <Icon className="size-4 shrink-0" strokeWidth={1.5} aria-hidden="true" />
         {metric.label}
+        <ChevronRight
+          className="ml-auto size-4 shrink-0 text-ink-tertiary transition-transform duration-150 group-hover:translate-x-0.5"
+          strokeWidth={1.5}
+          aria-hidden="true"
+        />
       </h3>
 
       <p className="mt-5 flex h-10 items-end text-ink">

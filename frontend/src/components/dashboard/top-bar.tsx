@@ -1,10 +1,10 @@
 import Link from "next/link"
 
 import { Wordmark } from "@/components/brand/wordmark"
-import { DataSourceBadge } from "@/components/dashboard/data-source-badge"
-import type { DashboardData } from "@/lib/dashboard/types"
+import { DemoDataBadge } from "@/components/dashboard/demo-data-badge"
+import { MotionToggle } from "@/components/shared/motion-toggle"
 
-export function TopBar({ source }: { source?: DashboardData["source"] }) {
+export function TopBar() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-canvas">
       <div className="shell flex h-16 items-center justify-between gap-4">
@@ -15,7 +15,10 @@ export function TopBar({ source }: { source?: DashboardData["source"] }) {
         >
           <Wordmark />
         </Link>
-        {source ? <DataSourceBadge source={source} /> : null}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <MotionToggle />
+          <DemoDataBadge />
+        </div>
       </div>
     </header>
   )

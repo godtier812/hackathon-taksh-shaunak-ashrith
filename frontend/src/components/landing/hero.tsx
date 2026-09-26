@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react"
 import { HandoffFade } from "@/components/landing/handoff"
 import { HeroWaveform } from "@/components/landing/hero-waveform"
 import { WordReveal } from "@/components/landing/word-reveal"
+import { Phase2Button } from "@/components/shared/phase2-button"
 import { PillLink } from "@/components/shared/pill"
 import { Reveal } from "@/components/shared/reveal"
 import { EXCERPT_SECONDS, storyStages } from "@/lib/demo/margaret"
@@ -35,9 +36,9 @@ export function Hero() {
               View Margaret&rsquo;s journey
               <ArrowRight data-icon="inline-end" strokeWidth={1.75} aria-hidden="true" />
             </PillLink>
-            <PillLink href="/dashboard#analyze" variant="secondary" className="w-full sm:w-auto">
+            <Phase2Button variant="secondary" className="w-full sm:w-auto">
               Start a session
-            </PillLink>
+            </Phase2Button>
           </div>
         </Reveal>
         </HandoffFade>
