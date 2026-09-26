@@ -34,7 +34,7 @@ const METRICS: MetricDef[] = [
   },
   {
     key: 'fillers',
-    label: 'Filler words',
+    label: 'Filler-word rate',
     higherIsBetter: false,
     get: (s) => fillersPer100(s.linguistic)
   }

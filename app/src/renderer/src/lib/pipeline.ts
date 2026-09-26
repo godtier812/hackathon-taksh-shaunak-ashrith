@@ -61,14 +61,16 @@ export async function runAnalysis(
   return { session, audioUrl: URL.createObjectURL(audio) }
 }
 
+/** Real voice recordings (.webm) take priority over the text-to-speech placeholders (.wav). */
+const SAMPLE_EXTENSIONS = ['webm', 'wav']
+
 export async function loadSample(task: TaskId, variant: ScriptVariant): Promise<Blob> {
-  const file = `${task}-${variant}.webm`
-  const res = await fetch(`./samples/${file}`)
-  // Vite's dev server answers missing files with index.html, so check the content type too.
-  if (!res.ok || res.headers.get('content-type')?.includes('text/html')) {
-    throw new Error(
-      `Demo sample "${file}" is missing. Record it first and save it to src/renderer/public/samples.`
-    )
+  for (const ext of SAMPLE_EXTENSIONS) {
+    const res = await fetch(`./samples/${task}-${variant}.${ext}`)
+    // Vite's dev server answers missing files with index.html, so check the content type too.
+    if (res.ok && !res.headers.get('content-type')?.includes('text/html')) return res.blob()
   }
-  return res.blob()
+  throw new Error(
+    `Demo sample "${task}-${variant}" is missing. Record it and save it to src/renderer/public/samples.`
+  )
 }
