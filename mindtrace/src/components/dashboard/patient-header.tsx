@@ -23,7 +23,7 @@ export function PatientHeader({ asHeading }: { asHeading: boolean }) {
             </p>
             <p className="inline-flex items-center gap-2 type-label text-ink">
               <span aria-hidden="true" className="relative inline-flex size-2">
-                <span className="absolute inset-0 rounded-full bg-accent motion-safe:animate-[status-halo_2.8s_var(--ease-out-expo)_infinite]" />
+                <span className="absolute inset-0 rounded-full bg-accent motion-ok:animate-[status-halo_2.8s_var(--ease-out-expo)_infinite]" />
                 <span className="relative size-2 rounded-full bg-accent" />
               </span>
               Active monitoring

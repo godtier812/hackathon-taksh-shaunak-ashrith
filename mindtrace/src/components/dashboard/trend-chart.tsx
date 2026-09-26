@@ -70,7 +70,7 @@ function LatestPoint({ cx, cy }: { cx?: number; cy?: number }) {
         r={5}
         fill="var(--accent)"
         opacity={0}
-        className="[transform-box:fill-box] [transform-origin:center] motion-safe:animate-[point-halo_1.1s_var(--ease-out-expo)_both]"
+        className="[transform-box:fill-box] [transform-origin:center] motion-ok:animate-[point-halo_1.1s_var(--ease-out-expo)_both]"
       />
       <circle cx={cx} cy={cy} r={4.5} fill="var(--brand)" stroke="#ffffff" strokeWidth={2} />
       <text x={cx + 12} y={cy - 3} className="fill-ink-tertiary font-mono text-[11px]">

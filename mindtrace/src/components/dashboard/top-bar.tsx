@@ -2,6 +2,7 @@ import Link from "next/link"
 
 import { Wordmark } from "@/components/brand/wordmark"
 import { DemoDataBadge } from "@/components/dashboard/demo-data-badge"
+import { MotionToggle } from "@/components/shared/motion-toggle"
 
 export function TopBar() {
   return (
@@ -14,7 +15,10 @@ export function TopBar() {
         >
           <Wordmark />
         </Link>
-        <DemoDataBadge />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <MotionToggle />
+          <DemoDataBadge />
+        </div>
       </div>
     </header>
   )

@@ -3,23 +3,61 @@
 import { useEffect, useState, useSyncExternalStore, type RefObject } from "react"
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)"
+const MOTION_KEY = "mindtrace-motion"
 
-function subscribeReducedMotion(onChange: () => void) {
+type MotionOverride = "on" | "off"
+
+/*
+ * Motion preference: the device setting, unless the visitor has flipped the
+ * Motion switch, which is remembered in this browser (in memory if storage is
+ * unavailable).
+ */
+const listeners = new Set<() => void>()
+let memoryOverride: MotionOverride | null = null
+
+function readOverride(): MotionOverride | null {
+  try {
+    const stored = window.localStorage.getItem(MOTION_KEY)
+    return stored === "on" || stored === "off" ? stored : memoryOverride
+  } catch {
+    return memoryOverride
+  }
+}
+
+function subscribeMotion(onChange: () => void) {
   const query = window.matchMedia(REDUCED_MOTION)
+  listeners.add(onChange)
   query.addEventListener("change", onChange)
-  return () => query.removeEventListener("change", onChange)
+  window.addEventListener("storage", onChange)
+  return () => {
+    listeners.delete(onChange)
+    query.removeEventListener("change", onChange)
+    window.removeEventListener("storage", onChange)
+  }
+}
+
+function reducedSnapshot() {
+  const override = readOverride()
+  return override ? override === "off" : window.matchMedia(REDUCED_MOTION).matches
 }
 
 /**
  * Hydration-safe reduced-motion flag: `false` on the server and during
- * hydration, then the real preference.
+ * hydration, then the device preference or the visitor's Motion switch.
  */
 export function usePrefersReducedMotion() {
-  return useSyncExternalStore(
-    subscribeReducedMotion,
-    () => window.matchMedia(REDUCED_MOTION).matches,
-    () => false
-  )
+  return useSyncExternalStore(subscribeMotion, reducedSnapshot, () => false)
+}
+
+/** Turn animations on or off for this browser, overriding the device setting. */
+export function setMotionEnabled(enabled: boolean) {
+  memoryOverride = enabled ? "on" : "off"
+  try {
+    window.localStorage.setItem(MOTION_KEY, memoryOverride)
+  } catch {
+    // Storage unavailable (private mode); the in-memory override still applies.
+  }
+  listeners.forEach((notify) => notify())
 }
 
 export type Size = { width: number; height: number }
