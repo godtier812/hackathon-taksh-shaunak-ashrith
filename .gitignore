@@ -1,83 +1,41 @@
-# Dependencies
-node_modules/
-.pnp
-.pnp.js
-.yarn/cache
-.yarn/unplugged
-.yarn/install-state.gz
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Build output
-dist/
-dist-electron/
-build/
-!backend/build/
-out/
-.next/
-.nuxt/
-.svelte-kit/
-.vite/
-.parcel-cache/
-.turbo/
-.cache/
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
-# Electron packaging (electron-builder / electron-forge)
-release/
-app-builds/
-*.asar
-*.exe
-*.dmg
-*.AppImage
-*.msi
-*.blockmap
+# testing
+/coverage
 
-# Environment and secrets
-.env
-.env.*
-!.env.example
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
 *.pem
-*.key
 
-# Logs
-logs/
-*.log
+# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
+.pnpm-debug.log*
 
-# Test and coverage
-coverage/
-.nyc_output/
+# env files (can opt-in for committing if needed)
+.env*
 
-# TypeScript
+# vercel
+.vercel
+
+# typescript
 *.tsbuildinfo
-
-# Python (if used for backend/scripts)
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-
-# Editors and OS
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-.idea/
-*.swp
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# Claude Code / ruflo tooling
-.claude/
-.claude-flow/
-.swarm/
-.hive-mind/
-graphify-out/
-.claude/settings.local.json
-
-# Browser automation output
-.playwright-mcp/
-
-# Browser automation output
-.playwright-mcp/
+next-env.d.ts
