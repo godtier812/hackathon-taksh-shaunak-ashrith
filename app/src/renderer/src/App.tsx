@@ -1,35 +1,32 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import type { JSX } from 'react'
+import { SettingsBar } from './components/SettingsBar'
+import { useSessions } from './hooks/useSessions'
+import { useSettings } from './hooks/useSettings'
+import { HomeScreen } from './screens/HomeScreen'
 
-function App(): React.JSX.Element {
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
+export default function App(): JSX.Element {
+  const { settings, toggle } = useSettings()
+  const { sessions, loading, error } = useSessions()
 
   return (
-    <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text">
-        Build an Electron app with <span className="react">React</span>
-        &nbsp;and <span className="ts">TypeScript</span>
-      </div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
-      </p>
-      <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
-        </div>
-      </div>
-      <Versions></Versions>
-    </>
+    <div className="app">
+      <header className="app-header no-print">
+        <span className="brand">EchoMind</span>
+        <SettingsBar settings={settings} onToggle={toggle} />
+      </header>
+      <main className="app-main">
+        {error && <p className="error">{error}</p>}
+        {loading ? (
+          <p className="muted">Loading…</p>
+        ) : (
+          <HomeScreen
+            sessions={sessions}
+            onStart={() => undefined}
+            onHistory={() => undefined}
+            onReport={() => undefined}
+          />
+        )}
+      </main>
+    </div>
   )
 }
-
-export default App

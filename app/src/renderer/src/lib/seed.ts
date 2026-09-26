@@ -28,9 +28,9 @@ export function generateSeedSessions(now: Date): Session[] {
       durationSec: 60,
       speakingTimeSec: lerp(48, 38, t),
       pauseCount: Math.round(lerp(7, 14, t)),
-      meanPauseSec: lerp(0.5, 1.25, t),
+      meanPauseSec: lerp(0.65, 1.25, t),
       longestPauseSec: lerp(1.0, 2.6, t),
-      silenceRatio: lerp(0.2, 0.42, t),
+      silenceRatio: lerp(0.27, 0.42, t),
       speechRate: lerp(4.3, 2.8, t),
       pitchVariationSemitones: lerp(3.2, 1.7, t),
       pauses: []
