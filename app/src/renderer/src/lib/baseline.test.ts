@@ -5,7 +5,13 @@ import type { MetricDelta, SessionCore, TaskId } from './types'
 const NOW = Date.UTC(2026, 8, 26)
 const DAY = 86_400_000
 
-function makeSession(id: string, daysAgo: number, task: TaskId, score: number, speechRate: number): SessionCore {
+function makeSession(
+  id: string,
+  daysAgo: number,
+  task: TaskId,
+  score: number,
+  speechRate: number
+): SessionCore {
   return {
     id,
     createdAt: new Date(NOW - daysAgo * DAY).toISOString(),

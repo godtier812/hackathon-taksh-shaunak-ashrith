@@ -31,7 +31,8 @@ export function analyzeInRenderer(
   task: TaskId,
   source: SessionSource
 ): Promise<Session> {
-  if (!win || win.isDestroyed()) return Promise.reject(new Error('The EchoMind app window is not open'))
+  if (!win || win.isDestroyed())
+    return Promise.reject(new Error('The EchoMind app window is not open'))
   const requestId = randomUUID()
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
@@ -39,7 +40,13 @@ export function analyzeInRenderer(
       reject(new Error('Analysis timed out'))
     }, TIMEOUT_MS)
     pending.set(requestId, { resolve, reject, timer })
-    const request: RemoteAnalyzeRequest = { requestId, task, source, mimeType, audio: new Uint8Array(audio) }
+    const request: RemoteAnalyzeRequest = {
+      requestId,
+      task,
+      source,
+      mimeType,
+      audio: new Uint8Array(audio)
+    }
     win.webContents.send('remote:analyzeRequest', request)
   })
 }

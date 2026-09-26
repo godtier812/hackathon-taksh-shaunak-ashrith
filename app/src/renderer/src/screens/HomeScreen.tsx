@@ -26,7 +26,9 @@ export function HomeScreen({ sessions, onStart, onHistory, onReport }: Props): J
       <section className="card hero">
         <div>
           <h1>{greeting()}</h1>
-          <p className="lead">A one-minute voice check-in helps you and your family notice changes early.</p>
+          <p className="lead">
+            A one-minute voice check-in helps you and your family notice changes early.
+          </p>
         </div>
         {latest && (
           <div className="hero-score">

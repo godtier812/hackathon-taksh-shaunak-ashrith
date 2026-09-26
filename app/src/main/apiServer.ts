@@ -23,7 +23,12 @@ export const DEFAULT_ALLOWED_ORIGINS = [
 
 export interface ApiDeps {
   listSessions: () => Promise<Session[]>
-  analyze: (audio: Buffer, mimeType: string, task: TaskId, source: SessionSource) => Promise<Session>
+  analyze: (
+    audio: Buffer,
+    mimeType: string,
+    task: TaskId,
+    source: SessionSource
+  ) => Promise<Session>
   allowedOrigins: string[]
   maxAudioBytes?: number
 }
@@ -74,11 +79,16 @@ function readBody(req: IncomingMessage, limit: number): Promise<Buffer> {
   })
 }
 
-export function createApiHandler(deps: ApiDeps): (req: IncomingMessage, res: ServerResponse) => Promise<void> {
+export function createApiHandler(
+  deps: ApiDeps
+): (req: IncomingMessage, res: ServerResponse) => Promise<void> {
   return async (req, res) => {
     const cors = corsHeaders(req.headers.origin, deps.allowedOrigins)
     const send = (status: number, body?: unknown): void => {
-      res.writeHead(status, body === undefined ? cors : { ...cors, 'Content-Type': 'application/json' })
+      res.writeHead(
+        status,
+        body === undefined ? cors : { ...cors, 'Content-Type': 'application/json' }
+      )
       res.end(body === undefined ? undefined : JSON.stringify(body))
     }
 
@@ -88,13 +98,19 @@ export function createApiHandler(deps: ApiDeps): (req: IncomingMessage, res: Ser
       const path = url.pathname.replace(/\/+$/, '')
 
       if (req.method === 'GET' && path === '/api/health') {
-        return send(200, { ok: true, app: 'EchoMind', version: API_VERSION } satisfies HealthResponse)
+        return send(200, {
+          ok: true,
+          app: 'EchoMind',
+          version: API_VERSION
+        } satisfies HealthResponse)
       }
-      if (req.method === 'GET' && path === '/api/sessions') return send(200, await deps.listSessions())
+      if (req.method === 'GET' && path === '/api/sessions')
+        return send(200, await deps.listSessions())
       if (req.method === 'GET' && path.startsWith('/api/sessions/')) {
         const id = decodeURIComponent(path.slice('/api/sessions/'.length))
         const sessions = await deps.listSessions()
-        const session = id === 'latest' ? sessions[sessions.length - 1] : sessions.find((s) => s.id === id)
+        const session =
+          id === 'latest' ? sessions[sessions.length - 1] : sessions.find((s) => s.id === id)
         if (!session) throw new HttpError(404, 'Session not found')
         return send(200, session)
       }
@@ -102,12 +118,18 @@ export function createApiHandler(deps: ApiDeps): (req: IncomingMessage, res: Ser
         const task = url.searchParams.get('task')
         const source = url.searchParams.get('source') ?? 'live'
         if (!isTaskId(task)) throw new HttpError(400, `task must be one of: ${TASK_IDS.join(', ')}`)
-        if (!isRemoteSource(source)) throw new HttpError(400, `source must be one of: ${REMOTE_SOURCES.join(', ')}`)
+        if (!isRemoteSource(source))
+          throw new HttpError(400, `source must be one of: ${REMOTE_SOURCES.join(', ')}`)
         const audio = await readBody(req, deps.maxAudioBytes ?? MAX_AUDIO_BYTES)
         if (audio.length === 0) throw new HttpError(400, 'Request body must contain audio')
         let session: Session
         try {
-          session = await deps.analyze(audio, req.headers['content-type'] ?? 'audio/webm', task, source)
+          session = await deps.analyze(
+            audio,
+            req.headers['content-type'] ?? 'audio/webm',
+            task,
+            source
+          )
         } catch (e) {
           throw new HttpError(422, e instanceof Error ? e.message : 'Analysis failed')
         }

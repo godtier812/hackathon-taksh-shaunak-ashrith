@@ -1,5 +1,14 @@
 import type { JSX } from 'react'
-import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis
+} from 'recharts'
 import { formatDate } from '../lib/format'
 import { GREEN_MIN, YELLOW_MIN } from '../lib/scoring'
 import type { Session } from '../lib/types'

@@ -76,8 +76,7 @@ export interface MetricDelta {
 }
 
 export type BaselineResult =
-  | { status: 'building'; remaining: number }
-  | { status: 'ready'; deltas: MetricDelta[] }
+  { status: 'building'; remaining: number } | { status: 'ready'; deltas: MetricDelta[] }
 
 export interface Session {
   id: string

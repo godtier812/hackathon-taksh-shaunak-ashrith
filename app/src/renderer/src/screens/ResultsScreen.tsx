@@ -40,9 +40,17 @@ export function ResultsScreen({ view, onHome, onHistory, onReport }: Props): JSX
 
       <section className="card">
         <h2>Where you paused</h2>
-        <PauseMapWaveform waveform={session.waveform} durationSec={acoustics.durationSec} pauses={acoustics.pauses} />
+        <PauseMapWaveform
+          waveform={session.waveform}
+          durationSec={acoustics.durationSec}
+          pauses={acoustics.pauses}
+        />
         <audio controls src={audioUrl} />
-        <a className="btn ghost" href={audioUrl} download={`${session.task}-${session.source}.webm`}>
+        <a
+          className="btn ghost"
+          href={audioUrl}
+          download={`${session.task}-${session.source}.webm`}
+        >
           Download recording
         </a>
       </section>
@@ -65,7 +73,8 @@ export function ResultsScreen({ view, onHome, onHistory, onReport }: Props): JSX
           ))}
         </ul>
         <p className="muted small">
-          Transcript from the demo language provider. Acoustic markers are measured from your recording.
+          Transcript from the demo language provider. Acoustic markers are measured from your
+          recording.
         </p>
       </section>
 

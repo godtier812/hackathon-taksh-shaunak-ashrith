@@ -6,9 +6,11 @@ contextBridge.exposeInMainWorld('api', {
   saveSession: (session: unknown) => ipcRenderer.invoke('sessions:save', session),
   exportReportPdf: () => ipcRenderer.invoke('report:exportPdf'),
   onRemoteAnalyzeRequest: (handler: (request: RemoteAnalyzeRequest) => void) => {
-    const listener = (_event: IpcRendererEvent, request: RemoteAnalyzeRequest): void => handler(request)
+    const listener = (_event: IpcRendererEvent, request: RemoteAnalyzeRequest): void =>
+      handler(request)
     ipcRenderer.on('remote:analyzeRequest', listener)
     return () => ipcRenderer.removeListener('remote:analyzeRequest', listener)
   },
-  sendRemoteAnalyzeResult: (result: RemoteAnalyzeResult) => ipcRenderer.send('remote:analyzeResult', result)
+  sendRemoteAnalyzeResult: (result: RemoteAnalyzeResult) =>
+    ipcRenderer.send('remote:analyzeResult', result)
 })

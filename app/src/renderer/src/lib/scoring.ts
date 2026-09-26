@@ -45,14 +45,46 @@ function factor(label: string, points: number, detail: string): ScoreFactor {
 export function scoreSession(a: AcousticMetrics, l: LinguisticResult): ScoreResult {
   const T = THRESHOLDS
   const factors: ScoreFactor[] = [
-    factor('Silence', penalty(a.silenceRatio, T.silenceRatio), `Pauses filled ${pct(a.silenceRatio)} of your speaking time`),
-    factor('Pause length', penalty(a.meanPauseSec, T.meanPauseSec), `Average pause ${a.meanPauseSec.toFixed(1)} s`),
-    factor('Speech rate', penalty(a.speechRate, T.speechRate), `${a.speechRate.toFixed(1)} syllables per second`),
-    factor('Pitch variation', penalty(a.pitchVariationSemitones, T.pitchVariation), `${a.pitchVariationSemitones.toFixed(1)} semitones of pitch movement`),
-    factor('Filler words', penalty(fillersPer100(l), T.fillersPer100), `${fillersPer100(l).toFixed(1)} per 100 words`),
-    factor('Repetitions', penalty(l.repetitionCount, T.repetitions), `${l.repetitionCount} repeated words`),
-    factor('Word-finding', penalty(l.wordFindingEvents, T.wordFinding), `${l.wordFindingEvents} word-finding moments`),
-    factor('Vocabulary', penalty(l.typeTokenRatio, T.typeTokenRatio), `${pct(l.typeTokenRatio)} unique words`)
+    factor(
+      'Silence',
+      penalty(a.silenceRatio, T.silenceRatio),
+      `Pauses filled ${pct(a.silenceRatio)} of your speaking time`
+    ),
+    factor(
+      'Pause length',
+      penalty(a.meanPauseSec, T.meanPauseSec),
+      `Average pause ${a.meanPauseSec.toFixed(1)} s`
+    ),
+    factor(
+      'Speech rate',
+      penalty(a.speechRate, T.speechRate),
+      `${a.speechRate.toFixed(1)} syllables per second`
+    ),
+    factor(
+      'Pitch variation',
+      penalty(a.pitchVariationSemitones, T.pitchVariation),
+      `${a.pitchVariationSemitones.toFixed(1)} semitones of pitch movement`
+    ),
+    factor(
+      'Filler words',
+      penalty(fillersPer100(l), T.fillersPer100),
+      `${fillersPer100(l).toFixed(1)} per 100 words`
+    ),
+    factor(
+      'Repetitions',
+      penalty(l.repetitionCount, T.repetitions),
+      `${l.repetitionCount} repeated words`
+    ),
+    factor(
+      'Word-finding',
+      penalty(l.wordFindingEvents, T.wordFinding),
+      `${l.wordFindingEvents} word-finding moments`
+    ),
+    factor(
+      'Vocabulary',
+      penalty(l.typeTokenRatio, T.typeTokenRatio),
+      `${pct(l.typeTokenRatio)} unique words`
+    )
   ]
   const score = Math.max(0, 100 - factors.reduce((sum, f) => sum + f.points, 0))
   const band = bandFor(score)

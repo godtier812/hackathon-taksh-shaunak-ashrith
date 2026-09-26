@@ -31,14 +31,24 @@ describe('ScriptedProvider', () => {
   const provider = new ScriptedProvider()
 
   it('returns a marker-free result for a typical sample', async () => {
-    const r = await provider.analyze({ audio: new Blob(), task: 'reading', source: 'sample-healthy', acoustics: calm })
+    const r = await provider.analyze({
+      audio: new Blob(),
+      task: 'reading',
+      source: 'sample-healthy',
+      acoustics: calm
+    })
     expect(r.fillerCount).toBe(0)
     expect(r.transcript.length).toBeGreaterThan(20)
     expect(r.notes).toEqual(['Fluent speech with no hesitation markers'])
   })
 
   it('returns markers and readable notes for a markers sample', async () => {
-    const r = await provider.analyze({ audio: new Blob(), task: 'story', source: 'sample-markers', acoustics: calm })
+    const r = await provider.analyze({
+      audio: new Blob(),
+      task: 'story',
+      source: 'sample-markers',
+      acoustics: calm
+    })
     expect(r.fillerCount).toBeGreaterThan(0)
     expect(r.wordFindingEvents).toBeGreaterThan(0)
     expect(r.notes[0]).toMatch(/filler word/)

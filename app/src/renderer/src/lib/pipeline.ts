@@ -41,7 +41,9 @@ export async function runAnalysis(
   const { samples, sampleRate } = await decodeAudio(audio)
   const acoustics = analyzeAcoustics(samples, sampleRate)
   if (acoustics.speakingTimeSec < MIN_SPEAKING_SEC) {
-    throw new Error("We couldn't hear enough speech. Try a quieter spot and sit a little closer to the microphone.")
+    throw new Error(
+      "We couldn't hear enough speech. Try a quieter spot and sit a little closer to the microphone."
+    )
   }
   const linguistic = await provider.analyze({ audio, task, source, acoustics })
   const core: SessionCore = {
@@ -64,7 +66,9 @@ export async function loadSample(task: TaskId, variant: ScriptVariant): Promise<
   const res = await fetch(`./samples/${file}`)
   // Vite's dev server answers missing files with index.html, so check the content type too.
   if (!res.ok || res.headers.get('content-type')?.includes('text/html')) {
-    throw new Error(`Demo sample "${file}" is missing. Record it first and save it to src/renderer/public/samples.`)
+    throw new Error(
+      `Demo sample "${file}" is missing. Record it first and save it to src/renderer/public/samples.`
+    )
   }
   return res.blob()
 }

@@ -57,8 +57,8 @@ export function ReportScreen({ sessions, onBack }: Props): JSX.Element {
       <header>
         <h1>EchoMind speech check-in report</h1>
         <p className="muted">
-          {sessions.length} check-ins · {formatDate(first.createdAt)} – {formatDate(latest.createdAt)} · Generated{' '}
-          {formatDate(new Date().toISOString())}
+          {sessions.length} check-ins · {formatDate(first.createdAt)} –{' '}
+          {formatDate(latest.createdAt)} · Generated {formatDate(new Date().toISOString())}
         </p>
       </header>
 
@@ -102,10 +102,11 @@ export function ReportScreen({ sessions, onBack }: Props): JSX.Element {
       <section>
         <h2>About these measures</h2>
         <p className="small">
-          Pause, speech-rate and pitch measures are computed from the audio recording. Filler words, repetitions and
-          word-finding moments come from the language analysis. Scores compare the patient with their own earlier
-          check-ins of the same task. Research links changes in these markers with early cognitive decline, but they can
-          also change with fatigue, illness, mood or hearing.
+          Pause, speech-rate and pitch measures are computed from the audio recording. Filler words,
+          repetitions and word-finding moments come from the language analysis. Scores compare the
+          patient with their own earlier check-ins of the same task. Research links changes in these
+          markers with early cognitive decline, but they can also change with fatigue, illness, mood
+          or hearing.
         </p>
       </section>
 

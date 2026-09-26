@@ -34,7 +34,10 @@ export function RecordScreen({ task, error, voiceGuide, onRecorded, onBack }: Pr
   const analyzeSample = async (variant: ScriptVariant): Promise<void> => {
     setMessage(null)
     try {
-      onRecorded(await loadSample(task, variant), variant === 'healthy' ? 'sample-healthy' : 'sample-markers')
+      onRecorded(
+        await loadSample(task, variant),
+        variant === 'healthy' ? 'sample-healthy' : 'sample-markers'
+      )
     } catch (e) {
       setMessage(e instanceof Error ? e.message : String(e))
     }

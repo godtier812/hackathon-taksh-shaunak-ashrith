@@ -32,9 +32,11 @@ function plural(n: number, word: string): string {
 
 export function buildNotes(summary: TokenSummary): string[] {
   const notes: string[] = []
-  if (summary.fillerCount > 0) notes.push(`${plural(summary.fillerCount, 'filler word')} (like "um" or "uh")`)
+  if (summary.fillerCount > 0)
+    notes.push(`${plural(summary.fillerCount, 'filler word')} (like "um" or "uh")`)
   if (summary.repetitionCount > 0) notes.push(plural(summary.repetitionCount, 'repeated word'))
-  if (summary.wordFindingEvents > 0) notes.push(`${plural(summary.wordFindingEvents, 'moment')} of searching for a word`)
+  if (summary.wordFindingEvents > 0)
+    notes.push(`${plural(summary.wordFindingEvents, 'moment')} of searching for a word`)
   if (notes.length === 0) notes.push('Fluent speech with no hesitation markers')
   return notes
 }

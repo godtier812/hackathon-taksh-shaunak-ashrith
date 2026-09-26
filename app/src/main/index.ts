@@ -65,7 +65,8 @@ app.whenReady().then(() => {
   registerRemoteAnalysisResults()
   startApiServer({
     listSessions,
-    analyze: (audio, mimeType, task, source) => analyzeInRenderer(mainWindow, audio, mimeType, task, source),
+    analyze: (audio, mimeType, task, source) =>
+      analyzeInRenderer(mainWindow, audio, mimeType, task, source),
     allowedOrigins: allowedOriginsFromEnv()
   })
 

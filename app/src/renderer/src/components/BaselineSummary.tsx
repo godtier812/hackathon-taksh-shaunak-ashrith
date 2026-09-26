@@ -7,7 +7,8 @@ export function BaselineSummary({ result }: { result: BaselineResult }): JSX.Ele
       <section className="card">
         <h3>Your personal baseline</h3>
         <p className="muted">
-          EchoMind compares you with yourself, not with other people. {result.remaining} more check-in
+          EchoMind compares you with yourself, not with other people. {result.remaining} more
+          check-in
           {result.remaining === 1 ? '' : 's'} of this task will set your baseline.
         </p>
       </section>
@@ -24,7 +25,9 @@ export function BaselineSummary({ result }: { result: BaselineResult }): JSX.Ele
           </li>
         ))}
       </ul>
-      <p className="muted small">Your baseline is the average of your first three check-ins of this task.</p>
+      <p className="muted small">
+        Your baseline is the average of your first three check-ins of this task.
+      </p>
     </section>
   )
 }

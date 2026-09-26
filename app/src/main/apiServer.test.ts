@@ -51,15 +51,24 @@ describe('EchoMind API', () => {
 
   it('passes posted audio to the analyzer and returns the new session', async () => {
     expect(await client.analyze(audio([1, 2, 3]), 'reading')).toEqual(s2)
-    expect(deps.analyze).toHaveBeenCalledWith(Buffer.from([1, 2, 3]), 'audio/webm', 'reading', 'live')
+    expect(deps.analyze).toHaveBeenCalledWith(
+      Buffer.from([1, 2, 3]),
+      'audio/webm',
+      'reading',
+      'live'
+    )
   })
 
   it('rejects an unknown task', async () => {
-    await expect(client.analyze(audio([1]), 'dancing' as TaskId)).rejects.toThrow(/task must be one of/)
+    await expect(client.analyze(audio([1]), 'dancing' as TaskId)).rejects.toThrow(
+      /task must be one of/
+    )
   })
 
   it('rejects an empty body', async () => {
-    await expect(client.analyze(audio([]), 'reading')).rejects.toThrow('Request body must contain audio')
+    await expect(client.analyze(audio([]), 'reading')).rejects.toThrow(
+      'Request body must contain audio'
+    )
   })
 
   it('rejects audio over the size limit', async () => {
@@ -70,7 +79,9 @@ describe('EchoMind API', () => {
     deps.analyze = vi.fn(async () => {
       throw new Error("We couldn't hear enough speech.")
     })
-    await expect(client.analyze(audio([1, 2]), 'story')).rejects.toThrow("We couldn't hear enough speech.")
+    await expect(client.analyze(audio([1, 2]), 'story')).rejects.toThrow(
+      "We couldn't hear enough speech."
+    )
   })
 
   it('returns 404 for unknown routes', async () => {
@@ -91,6 +102,8 @@ describe('corsHeaders', () => {
   })
 
   it('allows any origin with *', () => {
-    expect(corsHeaders('https://site.example', ['*'])['Access-Control-Allow-Origin']).toBe('https://site.example')
+    expect(corsHeaders('https://site.example', ['*'])['Access-Control-Allow-Origin']).toBe(
+      'https://site.example'
+    )
   })
 })

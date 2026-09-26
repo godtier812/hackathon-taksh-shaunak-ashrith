@@ -14,7 +14,8 @@ export function createEchoMindClient(baseUrl: string = API_BASE): EchoMindClient
   async function request<T>(path: string, init?: RequestInit): Promise<T> {
     const res = await fetch(`${baseUrl}${path}`, init)
     const body = (await res.json().catch(() => ({}))) as T | Partial<ApiError>
-    if (!res.ok) throw new Error((body as Partial<ApiError>).error ?? `EchoMind API error ${res.status}`)
+    if (!res.ok)
+      throw new Error((body as Partial<ApiError>).error ?? `EchoMind API error ${res.status}`)
     return body as T
   }
 
