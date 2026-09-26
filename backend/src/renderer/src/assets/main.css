@@ -24,6 +24,7 @@
   --green: #2563eb; /* "typical" */
   --yellow: #d97706; /* "worth watching" */
   --red: #c2410c; /* "consider a check-up" */
+  --red-soft: #fff1ec;
   --pause: rgba(217, 119, 6, 0.2);
 
   /* Shape and elevation */
@@ -59,6 +60,7 @@
   --green: #7cc4ff;
   --yellow: #ffb454;
   --red: #ff8a65;
+  --red-soft: #222;
   --pause: rgba(255, 120, 0, 0.55);
   color-scheme: dark;
 }
@@ -259,7 +261,8 @@ p {
 .btn:active {
   transform: scale(0.98);
 }
-:root.high-contrast .btn {
+/* Filled buttons get dark text on yellow; outlined and ghost buttons keep the light text color. */
+:root.high-contrast .btn:not(.secondary):not(.ghost):not(.recording) {
   color: #000;
 }
 .btn.secondary {
@@ -472,7 +475,7 @@ input:focus-visible {
   color: var(--signal-text);
 }
 .band-pill.band-red {
-  background: #fff1ec;
+  background: var(--red-soft);
   color: var(--red);
 }
 :root.high-contrast .band-pill {
@@ -604,7 +607,7 @@ audio {
   text-underline-offset: 5px;
 }
 .tok-wordfinding {
-  background: #fff1ec;
+  background: var(--red-soft);
   color: var(--red);
   padding: 0 0.3em;
   font-style: italic;
