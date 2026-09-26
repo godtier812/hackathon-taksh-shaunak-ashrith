@@ -1,0 +1,75 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/install-state.gz
+
+# Build output
+dist/
+dist-electron/
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+.vite/
+.parcel-cache/
+.turbo/
+.cache/
+
+# Electron packaging (electron-builder / electron-forge)
+release/
+app-builds/
+*.asar
+*.exe
+*.dmg
+*.AppImage
+*.msi
+*.blockmap
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test and coverage
+coverage/
+.nyc_output/
+
+# TypeScript
+*.tsbuildinfo
+
+# Python (if used for backend/scripts)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editors and OS
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Claude Code / ruflo tooling
+.claude/
+.claude-flow/
+.swarm/
+.hive-mind/
+graphify-out/
