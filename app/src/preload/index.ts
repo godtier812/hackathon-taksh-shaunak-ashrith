@@ -1,22 +1,14 @@
-import { contextBridge } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
+import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
+import type { RemoteAnalyzeRequest, RemoteAnalyzeResult } from '../shared/bridge'
 
-// Custom APIs for renderer
-const api = {}
-
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
-  } catch (error) {
-    console.error(error)
-  }
-} else {
-  // @ts-ignore (define in dts)
-  window.electron = electronAPI
-  // @ts-ignore (define in dts)
-  window.api = api
-}
+contextBridge.exposeInMainWorld('api', {
+  listSessions: () => ipcRenderer.invoke('sessions:list'),
+  saveSession: (session: unknown) => ipcRenderer.invoke('sessions:save', session),
+  exportReportPdf: () => ipcRenderer.invoke('report:exportPdf'),
+  onRemoteAnalyzeRequest: (handler: (request: RemoteAnalyzeRequest) => void) => {
+    const listener = (_event: IpcRendererEvent, request: RemoteAnalyzeRequest): void => handler(request)
+    ipcRenderer.on('remote:analyzeRequest', listener)
+    return () => ipcRenderer.removeListener('remote:analyzeRequest', listener)
+  },
+  sendRemoteAnalyzeResult: (result: RemoteAnalyzeResult) => ipcRenderer.send('remote:analyzeResult', result)
+})
