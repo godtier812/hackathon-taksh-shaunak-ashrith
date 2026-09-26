@@ -39,7 +39,9 @@ services:
       - MINDTRACE_API_HOST=0.0.0.0
       # Allow the frontend's public origin to call the API.
       - MINDTRACE_ALLOWED_ORIGINS=*
-    command: sh -c "npm install && xvfb-run -a ./node_modules/.bin/electron-vite dev -- --no-sandbox"
+      # Point the session bus at the system bus so Electron's D-Bus client connects.
+      - DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
+    command: sh -c "npm install && mkdir -p /run/dbus && dbus-daemon --system --fork && xvfb-run -a ./node_modules/.bin/electron-vite dev -- --no-sandbox --disable-gpu --disable-software-rasterizer"
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:4317/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 10s

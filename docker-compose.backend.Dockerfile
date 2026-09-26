@@ -14,4 +14,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libdrm2 \
     libgbm1 \
     libasound2 \
+    dbus \
     && rm -rf /var/lib/apt/lists/*
