@@ -13,7 +13,7 @@ export default function DashboardPage() {
   return (
     <>
       <TopBar />
-      <main className="shell pt-8 pb-24 md:pt-10 md:pb-32">
+      <main className="shell pt-8 pb-20 md:pt-10 md:pb-24">
         <DashboardView variant="page" />
       </main>
     </>

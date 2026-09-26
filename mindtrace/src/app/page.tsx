@@ -1,3 +1,4 @@
+import { HandoffProvider } from "@/components/landing/handoff"
 import { Hero } from "@/components/landing/hero"
 import { ProductPreview } from "@/components/landing/product-preview"
 import { Science } from "@/components/landing/science"
@@ -11,8 +12,10 @@ export default function Home() {
     <>
       <SiteNav />
       <main>
-        <Hero />
-        <ScrollStory stages={storyStages} />
+        <HandoffProvider>
+          <Hero />
+          <ScrollStory stages={storyStages} />
+        </HandoffProvider>
         <ProductPreview />
         <Science />
       </main>

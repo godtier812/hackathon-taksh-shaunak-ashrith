@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react"
 
+import { HandoffFade } from "@/components/landing/handoff"
 import { HeroWaveform } from "@/components/landing/hero-waveform"
 import { WordReveal } from "@/components/landing/word-reveal"
 import { Phase2Button } from "@/components/shared/phase2-button"
@@ -13,6 +14,7 @@ export function Hero() {
   return (
     <section aria-labelledby="hero-title">
       <div className="shell pt-10 pb-20 md:pt-12 md:pb-24">
+        <HandoffFade range={[0.05, 0.5]} lift={-32}>
         <Reveal y={0} fadeDuration={0.4}>
           <p className="font-mono type-eyebrow text-ink-tertiary">Longitudinal communication record</p>
         </Reveal>
@@ -39,6 +41,7 @@ export function Hero() {
             </Phase2Button>
           </div>
         </Reveal>
+        </HandoffFade>
 
         <Reveal delay={0.4} y={0} fadeDuration={0.3} className="mt-12">
           <HeroWaveform amps={baseline.wave.amps} dateLabel={baseline.dateLabel} seconds={EXCERPT_SECONDS} />
