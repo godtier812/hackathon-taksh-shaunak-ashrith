@@ -58,6 +58,16 @@ The top bar has a **Motion** switch. It starts from the device's "reduce motion"
 
 Link previews use a generated image (`src/app/opengraph-image.tsx`). When deploying, set `NEXT_PUBLIC_SITE_URL` to the site's public URL so previews resolve correctly.
 
+## Legal pages
+
+The site includes a [Privacy Policy](src/app/(legal)/privacy/page.tsx), [Terms of Use](src/app/(legal)/terms/page.tsx) and a [Medical Disclaimer](src/app/(legal)/medical-disclaimer/page.tsx) (`/privacy`, `/terms`, `/medical-disclaimer`), linked from every page's footer. Key commitments: data is never sold and never used to train AI models, and MindTrace is not a medical device and does not diagnose.
+
+Before launching publicly:
+
+- Replace the contact link in `src/lib/legal.ts` with a dedicated email address.
+- Make sure any service that processes recordings (hosting, transcription, AI APIs) is contractually barred from selling data or training on it, so the policy stays true.
+- Have the pages reviewed by a lawyer. They are a careful starting point, not legal advice.
+
 ## Tech stack
 
 - Next.js 16 (App Router), React 19, TypeScript

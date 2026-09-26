@@ -4,6 +4,7 @@ import Link from "next/link"
 import type { ReactNode } from "react"
 
 import { Wordmark } from "@/components/brand/wordmark"
+import { SiteFooter } from "@/components/landing/site-footer"
 import { IndexSparkline } from "@/components/summary/index-sparkline"
 import { PrintButton } from "@/components/summary/print-button"
 import {
@@ -183,6 +184,7 @@ export default function AppointmentSummaryPage() {
           </p>
         </article>
       </main>
+      <SiteFooter />
     </>
   )
 }

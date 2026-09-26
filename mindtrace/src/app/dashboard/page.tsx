@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 
 import { DashboardView } from "@/components/dashboard/dashboard-view"
 import { TopBar } from "@/components/dashboard/top-bar"
+import { SiteFooter } from "@/components/landing/site-footer"
 
 export const metadata: Metadata = {
   title: "Margaret Reynolds · MindTrace",
@@ -16,6 +17,7 @@ export default function DashboardPage() {
       <main className="shell pt-8 pb-20 md:pt-10 md:pb-24">
         <DashboardView variant="page" />
       </main>
+      <SiteFooter />
     </>
   )
 }
