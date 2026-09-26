@@ -1,0 +1,9 @@
+# Keep LF line endings in the working tree on every OS; both projects use Prettier with endOfLine: lf.
+* text=auto eol=lf
+
+# Binary assets
+*.png binary
+*.ico binary
+*.icns binary
+*.wav binary
+*.webm binary
